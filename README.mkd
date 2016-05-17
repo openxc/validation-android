@@ -1,13 +1,24 @@
-OpenXCStarter
+OpenXC Firmware Validation
 ==============
 
-This is a simple "hello world" project using OpenXC. Follow the OpenXC getting
-started app [tutorial](http://openxcplatform.com/getting-started/tutorial.html)
-to learn more about what this code does. You can also use this project to
-jumpstart your own OpenXC app.
+This app is used to validate that the standard 19 signals in the VI package are reporting correctly. The user is asked to select their vehicle year and model, enter its VIN and select whether the reported values are correct or not. In addition, the version and the device ID of the connected VI is shown and recorded. If the value is correct, “Yes” would be selected and no further input is required. If the value is incorrect, “No” is selected and a text box is displayed to allow the user to input a reason why the value is wrong. When the user is ready to submit the data they have gathered, they tap the “Send Data” button and the data is recorded in a [Google spreadsheet](https://goo.gl/6hJOUk) for review. This is done via a http post request and uses the IDs of the form inputs from Google Forms. This ID is taken from the code of the HTML preview of the form. You to use the “name” designation in the hidden input tag beneath the input that you want.
 
-This version of the project requires v6.1.6 or later of the OpenXC Android
-library.
+Example of html for “Model Year”
+![Model Year Example](https://raw.githubusercontent.com/openxc/validation-android/master/docs/htmlExample.png)
+
+To make it easier to manage the vehicle models and years, the app pulls them from a [Google spreadsheet](https://goo.gl/ZBHKzR), which allows for new models and years to be added without having to re-release the app.
+
+##Links
+Vehicle Models and Years Spreadsheet: [https://goo.gl/ZBHKzR](https://goo.gl/ZBHKzR)
+Data Submissions Spreadsheet: [https://goo.gl/6hJOUk](https://goo.gl/6hJOUk)
+Google Form: [https://goo.gl/xcKpcD](https://goo.gl/xcKpcD)
+
+##Future Improvements
+*Add the ability to automatically pull VIN from car
+*Show and record the type of VI connected (i.e. Reference, CrossChasm, etc.)
+⋅*This would require a change to the firmware
+*Add warning if extra signals (beyond the standard 19) are detected
+
 
 ## License
 
