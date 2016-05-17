@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">OpenXC Firmware Validation</string>
+    <string name="action_settings">Settings</string>
+    <string name="working">Working</string>
+    <string name="not_working">Not Working</string>
+    <string name="not_tested">Not Tested</string>
+    <string name="year_title">Model Year</string>
+    <string name="model_title">Model</string>
+
+
+</resources>

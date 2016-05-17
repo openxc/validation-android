@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="library-6.1.6">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.openxcplatform/library/6.1.6/res" />
+      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.openxcplatform/library/6.1.6/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.openxcplatform/library/6.1.6/bc051ce330c5f8ee9e75d4cd7f1960d4add6b181/library-6.1.6-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
