@@ -27,5 +27,5 @@ Google Form: [https://goo.gl/xcKpcD](https://goo.gl/xcKpcD)
 
 ## License
 
-Copyright (c) 2011-2016 Ford Motor Company
+Copyright (c) 2016 Ford Motor Company
 Licensed under the BSD license.
