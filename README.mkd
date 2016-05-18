@@ -18,9 +18,6 @@ Google Form: [https://goo.gl/xcKpcD](https://goo.gl/xcKpcD)
 ##Future Improvements
 <ul>
   <li>Add the ability to automatically pull VIN from car</li>
-    <ul>
-      <li>This would require a change to the firmware
-    </ul>
   <li>Show and record the type of VI connected (i.e. Reference, CrossChasm, etc.)</li>
   <li>Add warning if extra signals (beyond the standard 19) are detected</li>
 </ul>
