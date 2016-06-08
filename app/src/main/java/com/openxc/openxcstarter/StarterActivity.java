@@ -1,14 +1,23 @@
 package com.openxc.openxcstarter;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.telephony.CellIdentityGsm;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -43,17 +52,22 @@ import com.openxc.measurements.VehicleSpeed;
 import com.openxc.measurements.WindshieldWiperStatus;
 import com.openxc.messages.DiagnosticRequest;
 import com.openxc.messages.VehicleMessage;
+import com.openxc.units.Boolean;
+import com.openxcplatform.openxcstarter.BuildConfig;
 import com.openxcplatform.openxcstarter.R;
 import com.openxc.VehicleManager;
 import com.openxc.measurements.Measurement;
 import com.openxc.measurements.EngineSpeed;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.jar.JarException;
 
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
@@ -61,6 +75,9 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 public class StarterActivity extends Activity implements OnClickListener, OnItemSelectedListener {
 
@@ -79,7 +96,8 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
             parkingBrakeSelection, buttonSelection, doorSelection, wiperSelection;
 
     private EditText accelIssue, brakeIssue, engineSpeedIssue, fuelConsumedIssue, fuelLevelIssue, latIssue, longIssue, odometerIssue, steerAngleIssue,
-            torqueIssue, gearIssue, speedIssue, headLampIssue, highbeamIssue, ignitionIssue, parkingBrakeIssue, buttonIssue, doorIssue, wiperIssue, vinInput;
+            torqueIssue, gearIssue, speedIssue, headLampIssue, highbeamIssue, ignitionIssue, parkingBrakeIssue, buttonIssue, doorIssue, wiperIssue, vinInput,
+            userVin;
 
 
     public TextView mVIVersion;
@@ -96,11 +114,68 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
     public String version;
     public String deviceId;
     public String VIN;
+    public int scanned = 0;
 
     private TextView mViVersionView;
     private TextView mViDeviceIdView;
 
+    private Button scanBtn;
+    private TextView contentTxt;
+
     public static Activity activity;
+
+    @Override //Creates the menu
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.mainmenu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // action with ID action_about was selected
+            case R.id.action_about: //Shows about popup
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+                // set title
+                alertDialogBuilder.setTitle("About");
+
+                double versionCode = BuildConfig.VERSION_CODE;
+
+                // set dialog message
+                alertDialogBuilder
+                        .setMessage("OpenXC Firmware Validation\nVersion: " + versionCode)
+                        .setCancelable(true)
+                        .setNegativeButton("Close",new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // if this button is clicked, just close
+                                // the dialog box and do nothing
+                                dialog.cancel();
+                            }
+                        });
+
+                // create alert dialog
+                AlertDialog alertDialog = alertDialogBuilder.create();
+
+                // show it
+                alertDialog.show();
+                break;
+            // action with ID action_reset was selected
+            case R.id.action_reset: //Resets app to all defaults
+                //Toast.makeText(this, "Reset", Toast.LENGTH_SHORT).show();
+                Intent i = getBaseContext().getPackageManager()
+                        .getLaunchIntentForPackage( getBaseContext().getPackageName() );
+                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(i);
+                break;
+            default:
+                break;
+        }
+
+        return true;
+    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -252,13 +327,66 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
         Button saveFile = (Button) findViewById(R.id.saveFile);
         saveFile.setOnClickListener(this);
 
-        //Pulling data for the vehicle models and years so we don't have to update the app every time a new model comes out
-        new DownloadWebpageTask(new AsyncResult() {
-            @Override
-            public void onResult(JSONObject object) {
-                processJson(object);
+        scanBtn = (Button)findViewById(R.id.scan_button);
+        contentTxt = (TextView)findViewById(R.id.vin);
+        scanBtn.setOnClickListener(this);
+
+        Button manualVinEntry = (Button) findViewById(R.id.manual_vin_button);
+        manualVinEntry.setOnClickListener(this);
+
+        boolean isConnected = isInternetAvailable();
+
+        if(isConnected){
+            //Pulling data for the vehicle models and years so we don't have to update the app every time a new model comes out
+            try{
+                new DownloadWebpageTask(new AsyncResult() {
+                    @Override
+                    public void onResult(JSONObject object) {
+                        processJson(object);
+                    }
+                }).execute("https://spreadsheets.google.com/tq?key=1YP4XIwWZ2ubY4rd4jLzBn6do3VQT582KsKwQcfKBWJ8");
+            } catch (Exception e) {
+
             }
-        }).execute("https://spreadsheets.google.com/tq?key=1YP4XIwWZ2ubY4rd4jLzBn6do3VQT582KsKwQcfKBWJ8");
+
+        } else { //No internet = no way to pull stuff from the cloud. Default to a hardcoded list, which was current as of 5/27/2016
+            Toast toast = Toast.makeText(getApplicationContext(),
+                    "No internet detected, loading default data", Toast.LENGTH_LONG);
+            toast.show();
+
+            String data = "{\"version\":\"0.6\",\"reqId\":\"0\",\"status\":\"ok\",\"sig\":\"1424404733\",\"table\":{\"cols\":[{\"id\":\"A\",\"label\":\"Models\",\"type\":\"string\"},{\"id\":\"B\",\"label\":\"Years\",\"type\":\"number\",\"pattern\":\"General\"}],\"rows\":[{\"c\":[{\"v\":\"C-Max\"},{\"v\":2005.0,\"f\":\"2005\"}]},{\"c\":[{\"v\":\"E-350\"},{\"v\":2006.0,\"f\":\"2006\"}]},{\"c\":[{\"v\":\"Ecosport\"},{\"v\":2007.0,\"f\":\"2007\"}]},{\"c\":[{\"v\":\"Edge\"},{\"v\":2008.0,\"f\":\"2008\"}]},{\"c\":[{\"v\":\"Escape\"},{\"v\":2009.0,\"f\":\"2009\"}]},{\"c\":[{\"v\":\"Expedition\"},{\"v\":2010.0,\"f\":\"2010\"}]},{\"c\":[{\"v\":\"Explorer\"},{\"v\":2011.0,\"f\":\"2011\"}]},{\"c\":[{\"v\":\"F-150\"},{\"v\":2012.0,\"f\":\"2012\"}]},{\"c\":[{\"v\":\"F-250\"},{\"v\":2013.0,\"f\":\"2013\"}]},{\"c\":[{\"v\":\"Falcon\"},{\"v\":2014.0,\"f\":\"2014\"}]},{\"c\":[{\"v\":\"Fiesta\"},{\"v\":2015.0,\"f\":\"2015\"}]},{\"c\":[{\"v\":\"Figo\"},{\"v\":2016.0,\"f\":\"2016\"}]},{\"c\":[{\"v\":\"Five Hundred\"},{\"v\":2017.0,\"f\":\"2017\"}]},{\"c\":[{\"v\":\"Flex\"},{\"v\":null}]},{\"c\":[{\"v\":\"Focus (automatic transmission)\"},{\"v\":null}]},{\"c\":[{\"v\":\"Focus (manual transmission)\"},{\"v\":null}]},{\"c\":[{\"v\":\"Focus Classic\"},{\"v\":null}]},{\"c\":[{\"v\":\"Focus Electric\"},{\"v\":null}]},{\"c\":[{\"v\":\"Freestar\"},{\"v\":null}]},{\"c\":[{\"v\":\"Freestyle\"},{\"v\":null}]},{\"c\":[{\"v\":\"Fusion\"},{\"v\":null}]},{\"c\":[{\"v\":\"Kuga\"},{\"v\":null}]},{\"c\":[{\"v\":\"Mariner\"},{\"v\":null}]},{\"c\":[{\"v\":\"MKS\"},{\"v\":null}]},{\"c\":[{\"v\":\"MKX\"},{\"v\":null}]},{\"c\":[{\"v\":\"MKZ\"},{\"v\":null}]},{\"c\":[{\"v\":\"Mondeo\"},{\"v\":null}]},{\"c\":[{\"v\":\"Mustang\"},{\"v\":null}]},{\"c\":[{\"v\":\"Navigator\"},{\"v\":null}]},{\"c\":[{\"v\":\"Navigator\"},{\"v\":null}]},{\"c\":[{\"v\":\"Ranger\"},{\"v\":null}]},{\"c\":[{\"v\":\"Super Duty\"},{\"v\":null}]},{\"c\":[{\"v\":\"Taurus\"},{\"v\":null}]},{\"c\":[{\"v\":\"Territory\"},{\"v\":null}]},{\"c\":[{\"v\":\"Transit\"},{\"v\":null}]},{\"c\":[{\"v\":\"Transit Connect\"},{\"v\":null}]}]}}";
+            int start = data.indexOf("{", data.indexOf("{") + 1);
+            int end = data.lastIndexOf("}");
+            String jsonResponse = data.substring(start, end);
+
+            try{
+                JSONObject cachedInfo = new JSONObject(jsonResponse);
+                processJson(cachedInfo);
+            } catch (JSONException e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+    //Checks to see if the app can reach the internet...as long as google.com is working
+    public boolean isInternetAvailable() {
+        try {
+            //InetAddress ipAddr = InetAddress.getByName("www.google.com"); //You can replace it with your name
+            ConnectivityManager connectivityManager
+                    = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+
+            //if (ipAddr.equals("") && activeNetworkInfo == null && !activeNetworkInfo.isConnected()) {
+            if (activeNetworkInfo == null && !activeNetworkInfo.isConnected()) {
+                return false;
+            } else {
+                return true;
+            }
+
+        } catch (Exception e) {
+            return false;
+        }
+
     }
 
     private void processJson(JSONObject object) { //Processing the data we get from the spreadsheet for models and years
@@ -324,8 +452,8 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
                                 mVIVersion.setText("VI Version: " + version);
                                 mDeviceID.setText("VI Device ID: " + deviceId);
 
-                                vinNum.setText("VIN: Manual Entry");
-                                vinInput.setVisibility(View.VISIBLE);
+                                //vinNum.setText("VIN: Manual Entry");
+                                //vinInput.setVisibility(View.VISIBLE);
 
                                 //TODO: Automatically pull VIN from the vehicle and only display the manual entry if it fails to pull
 
@@ -479,11 +607,24 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
         doorIssue = (EditText) findViewById(R.id.textDoor);
         wiperIssue = (EditText) findViewById(R.id.textWipers);
 
+        userVin = (EditText) findViewById(R.id.manualVIN);
+
         EditText emailAddress = (EditText) findViewById(R.id.email);
         EditText name = (EditText) findViewById(R.id.name);
 
         switch (v.getId()) {
 
+            case R.id.scan_button:
+                userVin.setVisibility(View.GONE);
+                IntentIntegrator scanIntegrator = new IntentIntegrator(this);
+                scanIntegrator.initiateScan();
+                break;
+            case R.id.manual_vin_button:
+                userVin.setVisibility(View.VISIBLE);
+                TextView vinScanShow = (TextView) findViewById(R.id.vin);
+                vinScanShow.setVisibility(View.GONE);
+                scanned = 0;
+                break;
             case R.id.yesAccel: //User selected the yes button
                 yesAccel.setVisibility(View.GONE); //Hiding YES button
                 noAccel.setVisibility(View.GONE); //Hiding NO button
@@ -1114,7 +1255,10 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
                 issueResponse[17] = speedIssue.getText().toString();
                 issueResponse[18] = wiperIssue.getText().toString();
 
-                VIN = vinInput.getText().toString();
+                if(scanned == 0)
+                    VIN = vinInput.getText().toString();
+                else
+                    VIN = vinNum.getText().toString().substring(5);
 
                 if(modelYearSelected != null) //Making sure we dont get any null responses here
                     postArray[0] = modelYearSelected;
@@ -1209,6 +1353,25 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
         });
     }
 
+    //Getting data back from ZXing barcode scanner
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+        if (scanningResult != null) {
+            String scanContent = scanningResult.getContents();
+            //String scanFormat = scanningResult.getFormatName();//Used to get format if needed down the line
+            contentTxt.setText("VIN: " + scanContent); //Shows recieved VIN
+            TextView scanVin = (TextView) findViewById(R.id.vin);
+            scanVin.setVisibility(View.VISIBLE);
+            scanned = 1;
+        }
+        else{ //Nothing recieved from scanner
+                Toast toast = Toast.makeText(getApplicationContext(),
+                        "No scan data received!", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+    }
+
+    //Requesting PII
     public void onCheckboxClicked(View view) {
         // Is the view now checked?
         boolean checked = ((CheckBox) view).isChecked();

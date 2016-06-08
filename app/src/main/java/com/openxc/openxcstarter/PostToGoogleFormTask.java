@@ -134,6 +134,6 @@ public class PostToGoogleFormTask extends AsyncTask<String, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean result){
         //Print Success or failure message accordingly
-        Toast.makeText(myContext,result?"Data Recorded":"There was some error in sending the data. Please try again.",Toast.LENGTH_LONG).show();
+        Toast.makeText(myContext,result?"Data Recorded":"There was an error in sending the data. Please try again.",Toast.LENGTH_LONG).show();
     }
 }
