@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/openxc-starter.iml" filepath="$PROJECT_DIR$/openxc-starter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/validation-android.iml" filepath="$PROJECT_DIR$/validation-android.iml" />
     </modules>
   </component>
 </project>

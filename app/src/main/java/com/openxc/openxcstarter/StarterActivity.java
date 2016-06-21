@@ -1406,8 +1406,25 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
             Log.i(TAG, "Unbinding from Vehicle Manager");
             // Remember to remove your listeners, in typical Android
             // fashion.
-            mVehicleManager.removeListener(EngineSpeed.class,
-                    mSpeedListener);
+            mVehicleManager.removeListener(EngineSpeed.class, mSpeedListener);
+            mVehicleManager.removeListener(AcceleratorPedalPosition.class, mAcceleratorPedalListener);
+            mVehicleManager.removeListener(BrakePedalStatus.class, mBrakePedalListener);
+            mVehicleManager.removeListener(FuelConsumed.class, mFuelConsumedListener);
+            mVehicleManager.removeListener(FuelLevel.class, mFuelLevelListener);
+            mVehicleManager.removeListener(Latitude.class, mLatitudeListener);
+            mVehicleManager.removeListener(Longitude.class, mLongitudeListener);
+            mVehicleManager.removeListener(Odometer.class, mOdometerListener);
+            mVehicleManager.removeListener(SteeringWheelAngle.class, mSteeringWheelAngleListener);
+            mVehicleManager.removeListener(TorqueAtTransmission.class, mTorqueAtTransmissionListener);
+            mVehicleManager.removeListener(TransmissionGearPosition.class, mGearListener);
+            mVehicleManager.removeListener(VehicleSpeed.class, mVehicleSpeedListener);
+            mVehicleManager.removeListener(HeadlampStatus.class, mHeadlampListener);
+            mVehicleManager.removeListener(HighBeamStatus.class, mHighbeamListener);
+            mVehicleManager.removeListener(IgnitionStatus.class, mIgnitionListener);
+            mVehicleManager.removeListener(ParkingBrakeStatus.class, mParkingBrakeListener);
+            mVehicleManager.removeListener(VehicleButtonEvent.class, mVehicleButtonListener);
+            mVehicleManager.removeListener(VehicleDoorStatus.class, mDoorListener);
+            mVehicleManager.removeListener(WindshieldWiperStatus.class, mWiperListener);
             unbindService(mConnection);
             mVehicleManager = null;
         }
