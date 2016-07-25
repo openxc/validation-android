@@ -46,6 +46,7 @@ public class PostToGoogleFormTask extends AsyncTask<String, Void, Boolean> {
     public static final String wipers="entry.2067736010";
     public static final String email="entry.1030344084";
     public static final String name="entry.850127133";
+    public static final String extra_signals="entry.1641430869";
 
     public Context myContext;
 
@@ -78,6 +79,7 @@ public class PostToGoogleFormTask extends AsyncTask<String, Void, Boolean> {
         String wipersS = dataToPost[23];
         String nameS = dataToPost[24];
         String emailS = dataToPost[25];
+        String extraSignalS = dataToPost[26];
         String postBody="";
 
         try {
@@ -107,6 +109,7 @@ public class PostToGoogleFormTask extends AsyncTask<String, Void, Boolean> {
                     "&" + door_status + "=" + URLEncoder.encode(doorStatusS,"UTF-8")+
                     "&" + speed + "=" + URLEncoder.encode(speedS,"UTF-8")+
                     "&" + wipers + "=" + URLEncoder.encode(wipersS,"UTF-8")+
+                    "&" + extra_signals + "=" + URLEncoder.encode(extraSignalS,"UTF-8")+
                     "&" + name + "=" + URLEncoder.encode(nameS,"UTF-8")+
                     "&" + email + "=" + URLEncoder.encode(emailS,"UTF-8");
 
