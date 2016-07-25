@@ -8,41 +8,6 @@
     <string name="not_tested">Not Tested</string>
     <string name="year_title">Model Year</string>
     <string name="model_title">Model</string>
-    <string name="enter_the_vin">Enter the VIN</string>
-    <string name="vi_version_no_data">VI Version: No Data</string>
-    <string name="vi_device_id_no_data">VI Device ID: No Data</string>
-    <string name="enter_the_issue">Enter the issue</string>
-    <string name="enter_your_name">Enter your name</string>
-    <string name="enter_your_email">Enter your email</string>
-    <string name="send_data">Send Data</string>
-    <string name="extra_signals_detected_swipe_up_to_view">Extra Signals Detected: Swipe up to view</string>
-    <string name="accelerator_pedal_position_nno_data">Accelerator Pedal Position: No Data</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
-    <string name="reset">Reset</string>
-    <string name="brake_pedal_nno_data">Brake Pedal: No Data</string>
-    <string name="engine_speed_rpm_no_data">Engine Speed (RPM): No Data</string>
-    <string name="fuel_consumed_no_data">Fuel Consumed: No Data</string>
-    <string name="fuel_level_no_data">Fuel Level: No Data</string>
-    <string name="headlamps_no_data">Headlamps: No Data</string>
-    <string name="highbeams_no_data">Highbeams: No Data</string>
-    <string name="ignition_no_data">Ignition: No Data</string>
-    <string name="latitude_no_data">Latitude: No Data</string>
-    <string name="longitude_no_data">Longitude: No Data</string>
-    <string name="odometer_no_data">Odometer: No Data</string>
-    <string name="parking_brake_no_data">Parking Brake: No Data</string>
-    <string name="steering_wheel_angle_no_data">Steering Wheel Angle: No Data</string>
-    <string name="transmission_torque_no_data">Transmission Torque: No Data</string>
-    <string name="gear_no_data">Gear: No Data</string>
-    <string name="button_no_data">Button: No Data</string>
-    <string name="door_status_no_data">Door Status: No Data</string>
-    <string name="speed_no_data">Speed: No Data</string>
-    <string name="windshield_wipers_no_data">Windshield Wipers: No Data</string>
-    <string name="pii_option">Optionally, please provide your name and email to allow us to contact
-        you in the event we have a question concerning your data. We will not use your information
-        for any other purposes.</string>
-    <string name="scan_vin">Scan VIN</string>
-    <string name="manual_vin">Manual VIN</string>
 
 
 </resources>

@@ -34,16 +34,14 @@ public class DownloadWebpageTask extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String result) {
         // remove the unnecessary parts from the response and construct a JSON
-        if(result.length()>0) {
-            int start = result.indexOf("{", result.indexOf("{") + 1);
-            int end = result.lastIndexOf("}");
-            String jsonResponse = result.substring(start, end);
-            try {
-                JSONObject table = new JSONObject(jsonResponse);
-                callback.onResult(table);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+        int start = result.indexOf("{", result.indexOf("{") + 1);
+        int end = result.lastIndexOf("}");
+        String jsonResponse = result.substring(start, end);
+        try {
+            JSONObject table = new JSONObject(jsonResponse);
+            callback.onResult(table);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
     }
 
