@@ -2,6 +2,7 @@ package com.openxc.openxcstarter;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ListActivity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,9 +13,13 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
 import android.telephony.CellIdentityGsm;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -24,6 +29,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -51,6 +57,8 @@ import com.openxc.measurements.VehicleDoorStatus;
 import com.openxc.measurements.VehicleSpeed;
 import com.openxc.measurements.WindshieldWiperStatus;
 import com.openxc.messages.DiagnosticRequest;
+import com.openxc.messages.EventedSimpleVehicleMessage;
+import com.openxc.messages.SimpleVehicleMessage;
 import com.openxc.messages.VehicleMessage;
 import com.openxc.units.Boolean;
 import com.openxcplatform.openxcstarter.BuildConfig;
@@ -65,9 +73,14 @@ import java.math.RoundingMode;
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarException;
+import java.util.regex.Pattern;
 
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
@@ -78,10 +91,10 @@ import org.json.JSONObject;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-public class StarterActivity extends Activity implements OnClickListener, OnItemSelectedListener {
+public class StarterActivity extends ListActivity implements OnClickListener, OnItemSelectedListener {
 
-    //TODO: Check if enabler sends more than the public signals
     //TODO: Pull VI type (Reference, CrossChasm, etc)...will require changes to firmware first
 
     private static final String TAG = "starterActivity";
@@ -89,7 +102,7 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
     private VehicleManager mVehicleManager;
     private TextView mAcceleratorPedalView, mBrakePedalView, mEngineSpeedView, mFuelConsumedView, mFuelLevelView, mLatitudeView, mLongitudeView, mOdometerView,
             mSteeringWheelView, mTransmissionTorqueView, mTransmissionGearView, mVehicleSpeedView, mHeadlampView, mHighBeamView, mIgnitionView,
-            mParkingBrakeView, mVehicleButtonView, mVehicleDoorView, mWiperView;
+            mParkingBrakeView, mVehicleButtonView, mVehicleDoorView, mWiperView, mListenerView;
 
     private TextView accelSelection, brakeSelection, engineSpeedSelection, fuelConsumedSelection, fuelLevelSelection, latSelection, longSelection,
             odometerSelection, steerAngleSelection, torqueSelection, gearSelection, speedSelection, headLampSelection, highbeamSelection, ignitionSelection,
@@ -99,6 +112,10 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
             torqueIssue, gearIssue, speedIssue, headLampIssue, highbeamIssue, ignitionIssue, parkingBrakeIssue, buttonIssue, doorIssue, wiperIssue, vinInput,
             userVin;
 
+    Set<String> receivedMessages = new HashSet<String>();
+    private Set<String> allowedMessages = new HashSet<String>();
+
+    private Toast mToast;
 
     public TextView mVIVersion;
     public TextView mDeviceID;
@@ -107,7 +124,7 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
     public String[] signalNames = new String[19];
     public String[] issueResponse = new String[19];
     public String[] jsonFormat = new String[19];
-    public String[] postArray = new String[26];
+    public String[] postArray = new String[27];
     public String modelYearSelected;
     public String modelSelected;
     public TextView vinNum;
@@ -118,6 +135,10 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
 
     private TextView mViVersionView;
     private TextView mViDeviceIdView;
+
+    ArrayList<String> listItems=new ArrayList<String>();
+    ArrayAdapter<String> adapter;
+    private SlidingUpPanelLayout myLayout;
 
     private Button scanBtn;
     private TextView contentTxt;
@@ -169,6 +190,8 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
                 break;
+
+
             default:
                 break;
         }
@@ -176,11 +199,13 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
         return true;
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_starter);
+
+        myLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        myLayout.setPanelHeight(0);
 
         // grab a reference to the engine speed text object in the UI, so we can
         // manipulate its value later from Java code
@@ -330,6 +355,11 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
         scanBtn = (Button)findViewById(R.id.scan_button);
         contentTxt = (TextView)findViewById(R.id.vin);
         scanBtn.setOnClickListener(this);
+
+        adapter=new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1,
+                listItems);
+        setListAdapter(adapter);
 
         Button manualVinEntry = (Button) findViewById(R.id.manual_vin_button);
         manualVinEntry.setOnClickListener(this);
@@ -565,7 +595,6 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
         Button resetDoor = (Button) findViewById(R.id.resetDoor);
         Button resetSpeed = (Button) findViewById(R.id.resetVehicleSpeed);
         Button resetWipers = (Button) findViewById(R.id.resetWipers);
-        //Button switchView = (Button) findViewById(R.id.switchView);
 
         accelSelection = (TextView) findViewById(R.id.selectedAccel);
         brakeSelection = (TextView) findViewById(R.id.selectedBrake);
@@ -1312,6 +1341,15 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
                     postArray[25] = "No Email Entered";
                 }
 
+                Set copyM = receivedMessages;
+                copyM.removeAll(allowedMessages);
+
+                if(!copyM.isEmpty()) {
+                    postArray[26] = copyM.toString();
+                }
+                else
+                    postArray[26] = "No extra signals detected";
+
                 Context mContext = getApplicationContext();
 
                 PostToGoogleFormTask postToGoogleFormTask = new PostToGoogleFormTask();
@@ -1425,6 +1463,8 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
             mVehicleManager.removeListener(VehicleButtonEvent.class, mVehicleButtonListener);
             mVehicleManager.removeListener(VehicleDoorStatus.class, mDoorListener);
             mVehicleManager.removeListener(WindshieldWiperStatus.class, mWiperListener);
+            mVehicleManager.removeListener(SimpleVehicleMessage.class, mListener);
+            mVehicleManager.removeListener(EventedSimpleVehicleMessage.class, mListener);
             unbindService(mConnection);
             mVehicleManager = null;
         }
@@ -1685,6 +1725,109 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
         }
     };
 
+    private boolean extraSignalTrip = false;
+    Map<String, String> values = new HashMap<String, String>();
+
+    VehicleMessage.Listener mListener = new VehicleMessage.Listener(){
+        @Override
+        public void receive(final VehicleMessage message) {
+            //Adding all the received message names into an array.
+            //Because it's a set, it will only add unique values.
+            receivedMessages.add(message.asSimpleMessage().getName());
+            //Making copies so we don't lose the originals when we removeAll()
+            final Set copyOfReceivedMessages = receivedMessages;
+            final Set copyOfAllowedMessages = allowedMessages;
+            //If there are any left over after we remove the allowed (aka, there are extra messages),
+            //it returns false
+            if(!copyOfReceivedMessages.removeAll(copyOfAllowedMessages)) {
+                runOnUiThread(new Runnable() {
+                    public void run()
+                    {
+                        if(!extraSignalTrip)
+                        {
+                            //Effectively un-hide the extra signals panel
+                            myLayout.setPanelHeight(130);
+                        }
+                        extraSignalTrip = true;
+
+                        if(!allowedMessages.contains(message.asSimpleMessage().getName()))
+                        {
+                            if(message instanceof EventedSimpleVehicleMessage) {
+                                //Create a string from the message
+                                String valueToSet = ((EventedSimpleVehicleMessage) message).getName() + " " +
+                                        ((EventedSimpleVehicleMessage) message).getValue() +
+                                        ": " + ((EventedSimpleVehicleMessage) message).getEvent();
+
+                                //If the values set doesn't contain the message already, add it
+                                if(!values.containsKey(message.asSimpleMessage().getName())) {
+                                    values.put(((EventedSimpleVehicleMessage) message).getName(),
+                                            ((EventedSimpleVehicleMessage) message).getValue() +
+                                                    ": " + ((EventedSimpleVehicleMessage) message).getEvent());
+
+                                    listItems.add(valueToSet);
+
+                                    adapter.notifyDataSetChanged();
+                                //If the message is already added, we need to update the value
+                                }else if(values.containsKey(message.asSimpleMessage().getName())) {
+                                    String regex = message.asSimpleMessage().getName() + ".*";
+                                    //Searching for the string in the set. Regex is needed since the
+                                    //message and the value are in the same string.
+                                    ArrayList<String> matches = getMatchingStrings(listItems, regex);
+                                    //Get index location of the message
+                                    int index = listItems.indexOf(matches.get(0));
+                                    //Update the message
+                                    listItems.set(index, valueToSet);
+
+                                    adapter.notifyDataSetChanged();
+                                }
+
+
+                            }
+                            else {
+                                //Same as above, but for a simple messsage
+                                String valueToSet = (((SimpleVehicleMessage) message).getName() + ": " +
+                                        ((SimpleVehicleMessage) message).getValue());
+
+                                if(!values.containsKey(message.asSimpleMessage().getName())) {
+                                    values.put(((SimpleVehicleMessage) message).getName(),
+                                            ((SimpleVehicleMessage) message).getValue().toString());
+
+                                    listItems.add(valueToSet);
+
+                                    adapter.notifyDataSetChanged();
+                                }else if(values.containsKey(message.asSimpleMessage().getName())) {
+                                    String regex = message.asSimpleMessage().getName() + ".*";
+                                    ArrayList<String> matches = getMatchingStrings(listItems, regex);
+                                    int index = listItems.indexOf(matches.get(0));
+                                    listItems.set(index, valueToSet);
+
+                                    adapter.notifyDataSetChanged();
+                                }
+                            }
+                        }
+
+                    }
+                });
+            }
+        }
+    };
+
+    //Regex search to look for matching messages when adding to the illegal messages list
+    ArrayList<String> getMatchingStrings(ArrayList<String> list, String regex) {
+
+        ArrayList<String> matches = new ArrayList<>();
+
+        Pattern p = Pattern.compile(regex);
+
+        for (String s:list) {
+            if (p.matcher(s).matches()) {
+                matches.add(s);
+            }
+        }
+
+        return matches;
+    }
+
     private ServiceConnection mConnection = new ServiceConnection() {
         // Called when the connection with the VehicleManager service is
         // established, i.e. bound.
@@ -1694,8 +1837,7 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
             // When the VehicleManager starts up, we store a reference to it
             // here in "mVehicleManager" so we can call functions on it
             // elsewhere in our code.
-            mVehicleManager = ((VehicleManager.VehicleBinder) service)
-                    .getService();
+            mVehicleManager = ((VehicleManager.VehicleBinder) service).getService();
 
             updateViInfo();
 
@@ -1704,25 +1846,46 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
             // we request that the VehicleManager call its receive() method
             // whenever the EngineSpeed changes
             mVehicleManager.addListener(EngineSpeed.class, mSpeedListener);
+            allowedMessages.add("engine_speed");
             mVehicleManager.addListener(AcceleratorPedalPosition.class, mAcceleratorPedalListener);
+            allowedMessages.add("accelerator_pedal_position");
             mVehicleManager.addListener(BrakePedalStatus.class, mBrakePedalListener);
+            allowedMessages.add("brake_pedal_status");
             mVehicleManager.addListener(FuelConsumed.class, mFuelConsumedListener);
+            allowedMessages.add("fuel_consumed_since_restart");
             mVehicleManager.addListener(FuelLevel.class, mFuelLevelListener);
+            allowedMessages.add("fuel_level");
             mVehicleManager.addListener(Latitude.class, mLatitudeListener);
+            allowedMessages.add("latitude");
             mVehicleManager.addListener(Longitude.class, mLongitudeListener);
+            allowedMessages.add("longitude");
             mVehicleManager.addListener(Odometer.class, mOdometerListener);
+            allowedMessages.add("odometer");
             mVehicleManager.addListener(SteeringWheelAngle.class, mSteeringWheelAngleListener);
+            allowedMessages.add("steering_wheel_angle");
             mVehicleManager.addListener(TorqueAtTransmission.class, mTorqueAtTransmissionListener);
+            allowedMessages.add("torque_at_transmission");
             mVehicleManager.addListener(TransmissionGearPosition.class, mGearListener);
+            allowedMessages.add("transmission_gear_position");
             mVehicleManager.addListener(VehicleSpeed.class, mVehicleSpeedListener);
+            allowedMessages.add("vehicle_speed");
             mVehicleManager.addListener(HeadlampStatus.class, mHeadlampListener);
+            allowedMessages.add("headlamp_status");
             mVehicleManager.addListener(HighBeamStatus.class, mHighbeamListener);
+            allowedMessages.add("high_beam_status");
             mVehicleManager.addListener(IgnitionStatus.class, mIgnitionListener);
+            allowedMessages.add("ignition_status");
             mVehicleManager.addListener(ParkingBrakeStatus.class, mParkingBrakeListener);
+            allowedMessages.add("parking_brake_status");
             mVehicleManager.addListener(VehicleButtonEvent.class, mVehicleButtonListener);
+            allowedMessages.add("button_event");
             mVehicleManager.addListener(VehicleDoorStatus.class, mDoorListener);
+            allowedMessages.add("door_status");
             mVehicleManager.addListener(WindshieldWiperStatus.class, mWiperListener);
+            allowedMessages.add("windshield_wiper_status");
 
+            mVehicleManager.addListener(SimpleVehicleMessage.class, mListener);
+            mVehicleManager.addListener(EventedSimpleVehicleMessage.class, mListener);
         }
 
         // Called when the connection with the service disconnects unexpectedly

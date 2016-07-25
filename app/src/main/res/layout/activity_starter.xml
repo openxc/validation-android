@@ -1,43 +1,40 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:sothree="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/sliding_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.openxc.openxcstarter.starterActivity">
+    android:gravity="bottom"
+    sothree:umanoPanelHeight="30dp"
+    sothree:umanoShadowHeight="4dp">
 
     <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
 
         <TableLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:descendantFocusability="beforeDescendants"
             android:focusable="true"
-            android:focusableInTouchMode="true">
+            android:focusableInTouchMode="true"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp">
 
             <LinearLayout
                 android:id="@+id/LinearLayout02"
                 android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
-                android:layout_alignParentBottom="true">
+                android:layout_width="fill_parent">
 
                 <Button android:id="@+id/scan_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:text="Scan VIN" />
+                    android:text="@string/scan_vin" />
 
                 <Button android:id="@+id/manual_vin_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerHorizontal="true"
-                    android:text="Manual VIN" />
+                    android:text="@string/manual_vin" />
             </LinearLayout>
 
             <EditText
@@ -48,7 +45,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the VIN"
+                android:hint="@string/enter_the_vin"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences" >
@@ -59,8 +56,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textIsSelectable="true"
-                android:visibility="gone"
-                android:layout_centerHorizontal="true" />
+                android:visibility="gone" />
 
             <Spinner
                 android:id="@+id/model_year"
@@ -80,13 +76,13 @@
                 android:layout_width="225dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/viVersion"
-                android:text="VI Version: No Data" />
+                android:text="@string/vi_version_no_data" />
 
             <TextView
                 android:layout_width="225dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/viDeviceId"
-                android:text="VI Device ID: No Data" />
+                android:text="@string/vi_device_id_no_data" />
 
             <!--<TextView
                 android:layout_width="225dp"
@@ -102,18 +98,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/accelerator_pedal"
-                    android:text="Accelerator Pedal Position: No Data" />
+                    android:text="@string/accelerator_pedal_position_no_data" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesAccel" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noAccel" />
 
                 <TextView
@@ -125,12 +121,12 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedAccel"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetAccel" />
 
@@ -144,7 +140,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -158,18 +154,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/brake_pedal"
-                    android:text="Brake Pedal: No Data" />
+                    android:text="@string/brake_pedal_no_data" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesBrake" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noBrake" />
 
                 <TextView
@@ -181,12 +177,12 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedBrake"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetBrake" />
 
@@ -200,7 +196,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:text="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -214,18 +210,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/engine_speed"
-                    android:text="Engine Speed (RPM): No Data"
-                    android:gravity="left" />
+                    android:text="@string/engine_speed_rpm_no_data"
+                    android:gravity="start" />
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesEngineSpeed" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noEngineSpeed" />
 
                 <TextView
@@ -237,12 +233,12 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedEngineSpeed"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetEngineSpeed" />
             </TableRow>
@@ -255,7 +251,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:text="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -269,18 +265,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/fuel_consumed"
-                    android:text="Fuel Consumed: No Data" />
+                    android:text="@string/fuel_consumed_no_data" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesFuelConsumed" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noFuelConsumed" />
 
                 <TextView
@@ -292,12 +288,12 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedFuelConsumed"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetFuelConsumed" />
 
@@ -311,7 +307,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:text="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -325,18 +321,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/fuel_level"
-                    android:text="Fuel Level: No Data" />
+                    android:text="@string/fuel_level_no_data" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesFuelLevel" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noFuelLevel" />
 
                 <TextView
@@ -348,12 +344,12 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedFuelLevel"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetFuelLevel" />
 
@@ -367,7 +363,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:text="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -381,18 +377,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/headlamp_status"
-                    android:text="Headlamps: No Data" />
+                    android:text="@string/headlamps_no_data" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesHeadlamp" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noHeadlamp" />
 
                 <TextView
@@ -404,12 +400,12 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedHeadLamp"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetHeadlamp" />
 
@@ -423,7 +419,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:text="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -437,18 +433,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/highbeam_status"
-                    android:text="Highbeams: No Data" />
+                    android:text="@string/highbeams_no_data" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesHighbeam" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noHighbeam" />
 
                 <TextView
@@ -460,12 +456,12 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedHighbeam"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetHighbeam" />
 
@@ -479,7 +475,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:text="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -493,18 +489,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/ignition_status"
-                    android:text="Ignition: No Data" />
+                    android:text="@string/ignition_no_data" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesIgnition" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noIgnition" />
 
                 <TextView
@@ -516,12 +512,12 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedIgnition"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetIgnition" />
 
@@ -535,7 +531,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:text="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -549,18 +545,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/latitude"
-                    android:text="Latitude: No Data" />
+                    android:text="@string/latitude_no_data" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesLat" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noLat" />
 
                 <TextView
@@ -572,12 +568,12 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedLat"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetLat" />
 
@@ -591,7 +587,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:text="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -605,18 +601,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/longitude"
-                    android:text="Longitude: No Data" />
+                    android:text="@string/longitude_no_data" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesLong" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noLong" />
 
                 <TextView
@@ -628,12 +624,12 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedLong"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetLong" />
 
@@ -647,7 +643,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:text="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -661,18 +657,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/odometer"
-                    android:text="Odometer: No Data" />
+                    android:text="@string/odometer_no_data" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesOdometer" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noOdometer" />
 
                 <TextView
@@ -684,12 +680,12 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedOdometer"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetOdometer" />
 
@@ -703,7 +699,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:text="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -717,18 +713,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/parking_brake"
-                    android:text="Parking Brake: No Data" />
+                    android:text="@string/parking_brake_no_data" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesParkingBrake" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noParkingBrake" />
 
                 <TextView
@@ -740,12 +736,12 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedParkingBrake"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetParkingBrake" />
 
@@ -759,7 +755,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:text="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -773,18 +769,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/steering_wheel"
-                    android:text="Steering Wheel Angle: No Data" />
+                    android:text="@string/steering_wheel_angle_no_data" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesSteerAngle" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noSteerAngle" />
 
                 <TextView
@@ -796,12 +792,12 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedSteerAngle"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetSteerAngle" />
 
@@ -815,7 +811,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:text="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -829,18 +825,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/transmission_torque"
-                    android:text="Transmission Torque: No Data" />
+                    android:text="@string/transmission_torque_no_data" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesTorque" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noTorque" />
 
                 <TextView
@@ -852,12 +848,12 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedTorque"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetTorque" />
 
@@ -871,7 +867,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:text="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -885,18 +881,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/transmission_gear"
-                    android:text="Gear: No Data" />
+                    android:text="@string/gear_no_data" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesGear" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noGear" />
 
                 <TextView
@@ -908,13 +904,13 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedGear"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetGear" />
 
@@ -928,7 +924,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:text="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -942,18 +938,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/button_event"
-                    android:text="Button: No Data" />
+                    android:text="@string/button_no_data" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesButton" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noButton" />
 
                 <TextView
@@ -965,12 +961,12 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedButton"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetButton" />
 
@@ -984,7 +980,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:text="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -998,18 +994,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/door_status"
-                    android:text="Door Status: No Data" />
+                    android:text="@string/door_status_no_data" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesDoor" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noDoor" />
 
                 <TextView
@@ -1021,12 +1017,12 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedDoor"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetDoor" />
 
@@ -1040,7 +1036,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:text="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -1054,18 +1050,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/vehicle_speed"
-                    android:text="Speed: No Data" />
+                    android:text="@string/speed_no_data" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesVehicleSpeed" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noVehicleSpeed" />
 
                 <TextView
@@ -1077,12 +1073,12 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedVehicleSpeed"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetVehicleSpeed" />
 
@@ -1096,7 +1092,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:text="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -1110,18 +1106,18 @@
                     android:layout_width="225dp"
                     android:layout_height="wrap_content"
                     android:id="@+id/windshield_wipers"
-                    android:text="Windshield Wipers: No Data" />
+                    android:text="@string/windshield_wipers_no_data" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Yes"
+                    android:text="@string/yes"
                     android:id="@+id/yesWipers" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="No"
+                    android:text="@string/no"
                     android:id="@+id/noWipers" />
 
                 <TextView
@@ -1133,12 +1129,12 @@
                     android:paddingLeft="15dp"
                     android:id="@+id/selectedWipers"
                     android:visibility="gone"
-                    android:text="Not Tested" />
+                    android:text="@string/not_tested" />
 
                 <Button
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Reset"
+                    android:text="@string/reset"
                     android:visibility="gone"
                     android:id="@+id/resetWipers" />
 
@@ -1152,7 +1148,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter the issue"
+                android:text="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -1172,7 +1168,7 @@
                     android:layout_width="305dp"
                     android:layout_height="wrap_content"
                     android:paddingBottom="15dp"
-                    android:text="Optionally, please provide your name and email to allow us to contact you in the event we have a question concerning your data. We will not use your information for any other purposes." />
+                    android:text="@string/pii_option" />
 
             </LinearLayout>
 
@@ -1184,7 +1180,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter your name"
+                android:hint="@string/enter_your_name"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapWords|textPersonName" >
@@ -1198,7 +1194,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:hint="Enter your email"
+                android:hint="@string/enter_your_email"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textEmailAddress" >
@@ -1207,9 +1203,34 @@
             <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Send Data"
+                android:text="@string/send_data"
                 android:id="@+id/saveFile" />
 
         </TableLayout>
     </ScrollView>
-</FrameLayout>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/extraSignals"
+            android:text="@string/extra_signals_detected_swipe_up_to_view"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="@android:color/holo_red_dark" />
+
+        <ListView android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:drawSelectorOnTop="false"
+            android:paddingTop="35dp"
+            android:layout_gravity="bottom"/>
+    </FrameLayout>
+
+
+</com.sothree.slidinguppanel.SlidingUpPanelLayout>
