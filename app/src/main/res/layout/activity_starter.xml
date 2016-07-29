@@ -1154,24 +1154,6 @@
                 android:inputType="textCapSentences|textAutoCorrect" >
             </EditText>
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <CheckBox android:id="@+id/nameAndEmail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onCheckboxClicked"/>
-
-                <TextView
-                    android:layout_width="305dp"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="15dp"
-                    android:text="@string/pii_option" />
-
-            </LinearLayout>
-
             <EditText
                 android:id="@+id/name"
                 android:layout_width="wrap_content"
