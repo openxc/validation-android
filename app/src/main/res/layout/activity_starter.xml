@@ -196,7 +196,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:text="@string/enter_the_issue"
+               android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -251,7 +251,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:text="@string/enter_the_issue"
+               android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -307,7 +307,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:text="@string/enter_the_issue"
+               android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -363,7 +363,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:text="@string/enter_the_issue"
+               android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -419,7 +419,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:text="@string/enter_the_issue"
+               android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -475,7 +475,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:text="@string/enter_the_issue"
+               android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -531,7 +531,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:text="@string/enter_the_issue"
+               android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -587,7 +587,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:text="@string/enter_the_issue"
+               android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -643,7 +643,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:text="@string/enter_the_issue"
+               android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -699,7 +699,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:text="@string/enter_the_issue"
+               android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -755,7 +755,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:text="@string/enter_the_issue"
+               android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -811,7 +811,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:text="@string/enter_the_issue"
+               android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -867,7 +867,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:text="@string/enter_the_issue"
+               android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -924,7 +924,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:text="@string/enter_the_issue"
+               android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -980,7 +980,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:text="@string/enter_the_issue"
+               android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -1036,7 +1036,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:text="@string/enter_the_issue"
+               android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -1092,7 +1092,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:text="@string/enter_the_issue"
+               android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -1148,7 +1148,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-                android:text="@string/enter_the_issue"
+               android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
