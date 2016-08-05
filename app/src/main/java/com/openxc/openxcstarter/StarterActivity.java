@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -116,6 +117,7 @@ public class StarterActivity extends ListActivity implements OnClickListener, On
     private Set<String> allowedMessages = new HashSet<String>();
 
     private Toast mToast;
+    SharedPreferences sharedPrefs;
 
     public TextView mVIVersion;
     public TextView mDeviceID;
@@ -162,11 +164,14 @@ public class StarterActivity extends ListActivity implements OnClickListener, On
                 // set title
                 alertDialogBuilder.setTitle("About");
 
-                double versionCode = BuildConfig.VERSION_CODE;
+                String versionCode = BuildConfig.VERSION_NAME;
+
 
                 // set dialog message
                 alertDialogBuilder
-                        .setMessage("OpenXC Firmware Validation\nVersion: " + versionCode)
+                        .setMessage("OpenXC Firmware Validation\nVersion: " + versionCode + "\n\nStored Name: "
+                                + sharedPrefs.getString("UserName", "None") + "\nStored Email: " +
+                                sharedPrefs.getString("UserEmail", "None"))
                         .setCancelable(true)
                         .setNegativeButton("Close",new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
@@ -189,6 +194,17 @@ public class StarterActivity extends ListActivity implements OnClickListener, On
                         .getLaunchIntentForPackage( getBaseContext().getPackageName() );
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
+                break;
+            case R.id.action_clear_pii: //Clears out email and name
+                SharedPreferences.Editor editor = sharedPrefs.edit();
+                editor.clear();
+                editor.commit();
+                Toast toast = Toast.makeText(getApplicationContext(),
+                        "Name and email have been cleared", Toast.LENGTH_SHORT);
+                toast.show();
+                break;
+            case R.id.action_enter_pii: //Allows user to enter their info
+                showInputDialog();
                 break;
 
 
@@ -396,6 +412,44 @@ public class StarterActivity extends ListActivity implements OnClickListener, On
                 e.printStackTrace();
             }
         }
+        sharedPrefs = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+
+
+        if(sharedPrefs.getBoolean("first_time", true))
+        {
+            showInputDialog();
+            sharedPrefs.edit().putBoolean("first_time", false).commit();
+        }
+    }
+
+    protected void showInputDialog() {
+
+        // get prompts.xml view
+        LayoutInflater layoutInflater = LayoutInflater.from(this);
+        View promptView = layoutInflater.inflate(R.layout.input_dialog, null);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setView(promptView);
+
+        final EditText user_name = (EditText) promptView.findViewById(R.id.name);
+        final EditText user_email = (EditText) promptView.findViewById(R.id.email);
+        // setup a dialog window
+        alertDialogBuilder.setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        sharedPrefs.edit().putString("UserEmail", user_email.getText().toString()).commit();
+                        sharedPrefs.edit().putString("UserName", user_name.getText().toString()).commit();
+                    }
+                })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        // create an alert dialog
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.show();
     }
 
     //Checks to see if the app can reach the internet...as long as google.com is working
@@ -1330,11 +1384,9 @@ public class StarterActivity extends ListActivity implements OnClickListener, On
                         postArray[i+5] = "Signal not tested";
                 }
 
-                CheckBox nameAndEmail = (CheckBox) findViewById(R.id.nameAndEmail);
-
-                if(nameAndEmail.isChecked()) {
-                    postArray[24] = name.getText().toString();
-                    postArray[25] = emailAddress.getText().toString();
+                if(sharedPrefs.getString("UserName", "None") != "None") {
+                    postArray[24] = sharedPrefs.getString("UserName", "None");
+                    postArray[25] = sharedPrefs.getString("UserEmail", "None");
                 }
                 else{
                     postArray[24] = "No Name Entered";
@@ -1407,32 +1459,6 @@ public class StarterActivity extends ListActivity implements OnClickListener, On
                         "No scan data received!", Toast.LENGTH_SHORT);
                 toast.show();
             }
-    }
-
-    //Requesting PII
-    public void onCheckboxClicked(View view) {
-        // Is the view now checked?
-        boolean checked = ((CheckBox) view).isChecked();
-        TextView name = (TextView) findViewById(R.id.name);
-        TextView emailAddress = (TextView) findViewById(R.id.email);
-
-        // Check which checkbox was clicked
-        switch(view.getId()) {
-            case R.id.nameAndEmail:
-                if (checked)
-                {
-                    name.setVisibility(view.VISIBLE);
-                    emailAddress.setVisibility(view.VISIBLE);
-                }
-                else
-                {
-                    name.setVisibility(view.GONE);
-                    emailAddress.setVisibility(view.GONE);
-                    name.setText(null);
-                    emailAddress.setText(null);
-                }
-                break;
-        }
     }
 
     @Override

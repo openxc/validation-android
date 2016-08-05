@@ -196,7 +196,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-               android:hint="@string/enter_the_issue"
+                android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -251,7 +251,7 @@
                 android:layout_marginBottom="5dp"
                 android:paddingBottom="5dp"
                 android:paddingTop="5dp"
-               android:hint="@string/enter_the_issue"
+                android:hint="@string/enter_the_issue"
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
@@ -1152,52 +1152,6 @@
                 android:background="#EBEBEB"
                 android:visibility="gone"
                 android:inputType="textCapSentences|textAutoCorrect" >
-            </EditText>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <CheckBox android:id="@+id/nameAndEmail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:onClick="onCheckboxClicked"/>
-
-                <TextView
-                    android:layout_width="305dp"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="15dp"
-                    android:text="@string/pii_option" />
-
-            </LinearLayout>
-
-            <EditText
-                android:id="@+id/name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:paddingBottom="5dp"
-                android:paddingTop="5dp"
-                android:hint="@string/enter_your_name"
-                android:background="#EBEBEB"
-                android:visibility="gone"
-                android:inputType="textCapWords|textPersonName" >
-            </EditText>
-
-            <EditText
-                android:id="@+id/email"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:paddingBottom="5dp"
-                android:paddingTop="5dp"
-                android:hint="@string/enter_your_email"
-                android:background="#EBEBEB"
-                android:visibility="gone"
-                android:inputType="textEmailAddress" >
             </EditText>
 
             <Button
