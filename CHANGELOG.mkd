@@ -3,6 +3,7 @@ OpenXC Firmware Validation Changelog
 
 ##v0.2.0
 * Improvement: Added detection of extra (beyond the standard 19) signals.
+* Improvement: User now optionally enters their name and email in a dialong the first time they use the app
 
 ##v0.1.0
 * Initial release.

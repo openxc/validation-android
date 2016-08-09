@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-
     <item
         android:id="@+id/action_reset"
-        android:title="Reset">
+        android:title="@string/clear_inputs">
+    </item>
+
+    <item
+        android:id="@+id/action_clear_pii"
+        android:title="@string/clear_personal_info">
+    </item>
+
+    <item
+        android:id="@+id/action_enter_pii"
+        android:title="@string/enter_personal_info">
     </item>
 
     <item
         android:id="@+id/action_about"
-        android:title="About">
+        android:title="@string/about">
     </item>
 
 </menu>

@@ -36,10 +36,16 @@
     <string name="door_status_no_data">Door Status: No Data</string>
     <string name="speed_no_data">Speed: No Data</string>
     <string name="windshield_wipers_no_data">Windshield Wipers: No Data</string>
-    <string name="pii_option">Optionally, please provide your name and email to allow us to contact you in the event we have a question concerning your data. We will not use your information for any other purposes.</string>
+    <string name="pii_option">Optionally, please provide your name and email to allow us to contact
+         you in the event we have a question concerning your data. We will not use your information
+         for any other purposes. You may reenter or clear this at any time from the menu.</string>
     <string name="enter_your_email">Enter your email</string>
     <string name="send_data">Send Data</string>
     <string name="extra_signals_detected_swipe_up_to_view">Extra Signals Detected: Swipe up to view</string>
     <string name="enter_your_name">Enter your name</string>
+    <string name="clear_inputs">Clear Inputs</string>
+    <string name="clear_personal_info">Clear Personal Info</string>
+    <string name="enter_personal_info">Enter Personal Info</string>
+    <string name="about">About</string>
 
 </resources>
