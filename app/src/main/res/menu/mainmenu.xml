@@ -16,6 +16,11 @@
     </item>
 
     <item
+        android:id="@+id/action_saved_data"
+        android:title="@string/view_saved_data">
+    </item>
+
+    <item
         android:id="@+id/action_about"
         android:title="@string/about">
     </item>

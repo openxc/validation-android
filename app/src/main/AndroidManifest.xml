@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.openxcplatform.openxcstarter"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    package="com.openxcplatform.openxcstarter">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
-    <uses-sdk
-        android:minSdkVersion="10"
-        android:targetSdkVersion="18" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -22,10 +17,10 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.openxc.openxcstarter.viewSavedData" android:label="Saved Data"></activity>
         <activity android:name="com.openxc.openxcstarter.extra_signals" android:label="Extra Signals"/>
         <service android:name="com.openxc.VehicleManager"/>
     </application>

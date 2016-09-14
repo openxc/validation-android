@@ -9,7 +9,7 @@
     <string name="year_title">Model Year</string>
     <string name="model_title">Model</string>
     <string name="scan_vin">Scan VIN</string>
-    <string name="manual_vin">Manual VIN</string>
+    <string name="manual_vin">Manual Entry</string>
     <string name="enter_the_vin">Enter the VIN</string>
     <string name="vi_version_no_data">VI Version: No Data</string>
     <string name="vi_device_id_no_data">VI Device ID: No Data</string>
@@ -40,12 +40,35 @@
          you in the event we have a question concerning your data. We will not use your information
          for any other purposes. You may reenter or clear this at any time from the menu.</string>
     <string name="enter_your_email">Enter your email</string>
-    <string name="send_data">Send Data</string>
+    <string name="send_data">Upload Data</string>
     <string name="extra_signals_detected_swipe_up_to_view">Extra Signals Detected: Swipe up to view</string>
     <string name="enter_your_name">Enter your name</string>
     <string name="clear_inputs">Clear Inputs</string>
     <string name="clear_personal_info">Clear Personal Info</string>
     <string name="enter_personal_info">Enter Personal Info</string>
     <string name="about">About</string>
+    <string name="view_saved_data">View Saved Data</string>
+    <string name="save_file_locally">Save Data to File</string>
+    <string name="view">View</string>
+    <string name="upload">Upload</string>
+    <string name="delete">Delete</string>
+    <string name="defaultModelsAndYears">{"version":"0.6","reqId":"0","status":"ok","sig":"1063878511","table":
+        {"cols":[{"id":"A","label":"Models","type":"string"},{"id":"B","label":"Years","type":"number",
+        "pattern":"General"}],"rows":[{"c":[{"v":"C-Max"},{"v":2005.0,"f":"2005"}]},{"c":[{"v":"E-350"},
+        {"v":2006.0,"f":"2006"}]},{"c":[{"v":"Ecosport"},{"v":2007.0,"f":"2007"}]},{"c":[{"v":"Edge"},
+        {"v":2008.0,"f":"2008"}]},{"c":[{"v":"Escape"},{"v":2009.0,"f":"2009"}]},{"c":[{"v":"Expedition"},
+        {"v":2010.0,"f":"2010"}]},{"c":[{"v":"Explorer"},{"v":2011.0,"f":"2011"}]},{"c":[{"v":"F-150"},
+        {"v":2012.0,"f":"2012"}]},{"c":[{"v":"F-250"},{"v":2013.0,"f":"2013"}]},{"c":[{"v":"Falcon"},
+        {"v":2014.0,"f":"2014"}]},{"c":[{"v":"Fiesta"},{"v":2015.0,"f":"2015"}]},{"c":[{"v":"Figo"},
+        {"v":2016.0,"f":"2016"}]},{"c":[{"v":"Five Hundred"},{"v":2017.0,"f":"2017"}]},{"c":[{"v":"Flex"},
+        {"v":null}]},{"c":[{"v":"Focus (automatic transmission)"},{"v":null}]},{"c":[{"v":"Focus (manual transmission)"},
+        {"v":null}]},{"c":[{"v":"Focus Classic"},{"v":null}]},{"c":[{"v":"Focus Electric"},{"v":null}]},
+        {"c":[{"v":"Freestar"},{"v":null}]},{"c":[{"v":"Freestyle"},{"v":null}]},{"c":[{"v":"Fusion"},
+        {"v":null}]},{"c":[{"v":"Kuga"},{"v":null}]},{"c":[{"v":"Mariner"},{"v":null}]},{"c":[{"v":"MKS"},
+        {"v":null}]},{"c":[{"v":"MKX"},{"v":null}]},{"c":[{"v":"MKZ"},{"v":null}]},{"c":[{"v":"Mondeo"},
+        {"v":null}]},{"c":[{"v":"Mustang"},{"v":null}]},{"c":[{"v":"Navigator"},{"v":null}]},{"c":[{"v":"Navigator"},
+        {"v":null}]},{"c":[{"v":"Ranger"},{"v":null}]},{"c":[{"v":"Super Duty"},{"v":null}]},{"c":[{"v":"Taurus"},
+        {"v":null}]},{"c":[{"v":"Territory"},{"v":null}]},{"c":[{"v":"Transit"},{"v":null}]},{"c":[{"v":"Transit Connect"},
+        {"v":null}]},{"c":[{"v":"Other (Please include VIN)"},{"v":null}]}]}}</string>
 
 </resources>
