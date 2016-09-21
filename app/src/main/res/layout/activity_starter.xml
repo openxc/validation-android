@@ -35,7 +35,36 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/manual_vin" />
+
             </LinearLayout>
+
+            <Spinner
+                android:id="@+id/model_year"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/year_title"
+                android:visibility="gone"
+                />
+
+            <Spinner
+                android:id="@+id/model"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:prompt="@string/model_title"
+                android:visibility="gone"
+                />
+
+            <TextView
+                android:layout_width="225dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/viVersion"
+                android:text="@string/vi_version_no_data" />
+
+            <TextView
+                android:layout_width="225dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/viDeviceId"
+                android:text="@string/vi_device_id_no_data" />
 
             <EditText
                 android:id="@+id/manualVIN"
@@ -55,40 +84,12 @@
                 android:id="@+id/vin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textIsSelectable="true"
                 android:visibility="gone" />
-
-            <Spinner
-                android:id="@+id/model_year"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:prompt="@string/year_title"
-                />
-
-            <Spinner
-                android:id="@+id/model"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:prompt="@string/model_title"
-                />
-
             <TextView
-                android:layout_width="225dp"
+                android:id="@+id/decodedVehicleInfo"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/viVersion"
-                android:text="@string/vi_version_no_data" />
-
-            <TextView
-                android:layout_width="225dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/viDeviceId"
-                android:text="@string/vi_device_id_no_data" />
-
-            <!--<TextView
-                android:layout_width="225dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/vin"
-                android:text="VIN: No Data" />-->
+                android:visibility="gone" />
 
             <TableRow
                 android:layout_width="match_parent"
@@ -1154,11 +1155,28 @@
                 android:inputType="textCapSentences|textAutoCorrect" >
             </EditText>
 
-            <Button
+            <LinearLayout
+                android:orientation="horizontal"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/send_data"
-                android:id="@+id/saveFile" />
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="15dp">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/send_data"
+                    android:id="@+id/sendData" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/save_file_locally"
+                    android:id="@+id/saveFile" />
+
+            </LinearLayout>
 
         </TableLayout>
     </ScrollView>

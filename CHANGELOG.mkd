@@ -4,6 +4,10 @@ OpenXC Firmware Validation Changelog
 ##v0.2.0
 * Improvement: Added detection of extra (beyond the standard 19) signals.
 * Improvement: User now optionally enters their name and email in a dialong the first time they use the app
+* Improvement: Users may now save the collected data locally for later viewing and/or uploading
+* Improvement: When scanning a VIN barcode, the app will automatically decode the VIN and display
+                the vehicle model and year using the NHTSA API (https://vpic.nhtsa.dot.gov/api/). 
+                Users may still manually enter this info by selecting "Manual Entry".
 
 ##v0.1.0
 * Initial release.

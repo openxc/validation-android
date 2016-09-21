@@ -1,6 +1,9 @@
 package com.openxc.openxcstarter;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,9 +17,12 @@ import java.net.URL;
 
 public class DownloadWebpageTask extends AsyncTask<String, Void, String> {
     AsyncResult callback;
+    SharedPreferences savedVehicleInfo;
+    Context mContext;
 
-    public DownloadWebpageTask(AsyncResult callback) {
+    public DownloadWebpageTask(AsyncResult callback, Context context) {
         this.callback = callback;
+        mContext = context;
     }
 
     @Override
@@ -35,6 +41,8 @@ public class DownloadWebpageTask extends AsyncTask<String, Void, String> {
     protected void onPostExecute(String result) {
         // remove the unnecessary parts from the response and construct a JSON
         if(result.length()>0) {
+            savedVehicleInfo = mContext.getSharedPreferences("vehicleInfo", Context.MODE_PRIVATE);
+            savedVehicleInfo.edit().putString("yearsAndModels", result).apply();
             int start = result.indexOf("{", result.indexOf("{") + 1);
             int end = result.lastIndexOf("}");
             String jsonResponse = result.substring(start, end);
