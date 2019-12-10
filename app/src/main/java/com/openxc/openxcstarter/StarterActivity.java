@@ -1,20 +1,21 @@
 package com.openxc.openxcstarter;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ListActivity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.IBinder;
-import android.telephony.CellIdentityGsm;
+import android.renderscript.Element;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,7 +23,6 @@ import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.Spinner;
@@ -50,24 +50,32 @@ import com.openxc.measurements.VehicleButtonEvent;
 import com.openxc.measurements.VehicleDoorStatus;
 import com.openxc.measurements.VehicleSpeed;
 import com.openxc.measurements.WindshieldWiperStatus;
-import com.openxc.messages.DiagnosticRequest;
+import com.openxc.messages.EventedSimpleVehicleMessage;
+import com.openxc.messages.SimpleVehicleMessage;
 import com.openxc.messages.VehicleMessage;
-import com.openxc.units.Boolean;
 import com.openxcplatform.openxcstarter.BuildConfig;
 import com.openxcplatform.openxcstarter.R;
 import com.openxc.VehicleManager;
 import com.openxc.measurements.Measurement;
 import com.openxc.measurements.EngineSpeed;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.net.InetAddress;
+import java.net.URL;
+import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.jar.JarException;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
@@ -75,13 +83,20 @@ import android.widget.Toast;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-public class StarterActivity extends Activity implements OnClickListener, OnItemSelectedListener {
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
-    //TODO: Check if enabler sends more than the public signals
+public class StarterActivity extends ListActivity implements OnClickListener, OnItemSelectedListener {
+
     //TODO: Pull VI type (Reference, CrossChasm, etc)...will require changes to firmware first
 
     private static final String TAG = "starterActivity";
@@ -89,40 +104,40 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
     private VehicleManager mVehicleManager;
     private TextView mAcceleratorPedalView, mBrakePedalView, mEngineSpeedView, mFuelConsumedView, mFuelLevelView, mLatitudeView, mLongitudeView, mOdometerView,
             mSteeringWheelView, mTransmissionTorqueView, mTransmissionGearView, mVehicleSpeedView, mHeadlampView, mHighBeamView, mIgnitionView,
-            mParkingBrakeView, mVehicleButtonView, mVehicleDoorView, mWiperView;
-
-    private TextView accelSelection, brakeSelection, engineSpeedSelection, fuelConsumedSelection, fuelLevelSelection, latSelection, longSelection,
-            odometerSelection, steerAngleSelection, torqueSelection, gearSelection, speedSelection, headLampSelection, highbeamSelection, ignitionSelection,
-            parkingBrakeSelection, buttonSelection, doorSelection, wiperSelection;
-
+            mParkingBrakeView, mVehicleButtonView, mVehicleDoorView, mWiperView, mDecodedVehicleInfo;
     private EditText accelIssue, brakeIssue, engineSpeedIssue, fuelConsumedIssue, fuelLevelIssue, latIssue, longIssue, odometerIssue, steerAngleIssue,
-            torqueIssue, gearIssue, speedIssue, headLampIssue, highbeamIssue, ignitionIssue, parkingBrakeIssue, buttonIssue, doorIssue, wiperIssue, vinInput,
+            torqueIssue, gearIssue, speedIssue, headLampIssue, highbeamIssue, ignitionIssue, parkingBrakeIssue, buttonIssue, doorIssue, wiperIssue,
             userVin;
+    private Spinner mModelYearSpin, mModelSpin;
+    private EditText vinInput;
 
+    Set<String> receivedMessages = new HashSet<String>();
+    private Set<String> allowedMessages = new HashSet<String>();
+
+    SharedPreferences sharedPrefs;
+    SharedPreferences savedVehicleInfo;
 
     public TextView mVIVersion;
     public TextView mDeviceID;
-    public TextView messageCount;
     public String[] signalResponse = new String[19];
     public String[] signalNames = new String[19];
     public String[] issueResponse = new String[19];
-    public String[] jsonFormat = new String[19];
-    public String[] postArray = new String[26];
+    public String[] postArray = new String[27];
     public String modelYearSelected;
     public String modelSelected;
     public TextView vinNum;
     public String version;
     public String deviceId;
     public String VIN;
+    public String decodedModel;
+    public String decodedModelYear;
     public int scanned = 0;
 
-    private TextView mViVersionView;
-    private TextView mViDeviceIdView;
+    ArrayList<String> listItems=new ArrayList<String>();
+    ArrayAdapter<String> adapter;
+    private SlidingUpPanelLayout myLayout;
 
-    private Button scanBtn;
     private TextView contentTxt;
-
-    public static Activity activity;
 
     @Override //Creates the menu
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -137,15 +152,14 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
             // action with ID action_about was selected
             case R.id.action_about: //Shows about popup
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-
                 // set title
                 alertDialogBuilder.setTitle("About");
-
-                double versionCode = BuildConfig.VERSION_CODE;
-
+                String versionCode = BuildConfig.VERSION_NAME;
                 // set dialog message
                 alertDialogBuilder
-                        .setMessage("OpenXC Firmware Validation\nVersion: " + versionCode)
+                        .setMessage("OpenXC Firmware Validation\nVersion: " + versionCode + "\n\nStored Name: "
+                                + sharedPrefs.getString("UserName", "None") + "\nStored Email: " +
+                                sharedPrefs.getString("UserEmail", "None"))
                         .setCancelable(true)
                         .setNegativeButton("Close",new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
@@ -169,6 +183,23 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
                 i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(i);
                 break;
+            case R.id.action_clear_pii: //Clears out email and name
+                SharedPreferences.Editor editor = sharedPrefs.edit();
+                editor.clear();
+                editor.apply();
+                Toast toast = Toast.makeText(getApplicationContext(),
+                        "Name and email have been cleared", Toast.LENGTH_SHORT);
+                toast.show();
+                break;
+            case R.id.action_enter_pii: //Allows user to enter their info
+                showInputDialog();
+                break;
+            case R.id.action_saved_data: //Allows user to view any saved data
+                Intent myIntent = new Intent(this, viewSavedData.class);
+                startActivityForResult(myIntent, 0);
+                break;
+
+
             default:
                 break;
         }
@@ -176,11 +207,13 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
         return true;
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_starter);
+
+        myLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
+        myLayout.setPanelHeight(0);
 
         // grab a reference to the engine speed text object in the UI, so we can
         // manipulate its value later from Java code
@@ -203,6 +236,9 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
         mVehicleButtonView = (TextView) findViewById(R.id.button_event);
         mVehicleDoorView = (TextView) findViewById(R.id.door_status);
         mWiperView = (TextView) findViewById(R.id.windshield_wipers);
+        mModelYearSpin = (Spinner) findViewById(R.id.model_year);
+        mModelSpin = (Spinner) findViewById(R.id.model);
+        mDecodedVehicleInfo = (TextView) findViewById(R.id.decodedVehicleInfo);
 
         mVIVersion = (TextView) findViewById(R.id.viVersion);
         mDeviceID = (TextView) findViewById(R.id.viDeviceId);
@@ -326,15 +362,31 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
 
         Button saveFile = (Button) findViewById(R.id.saveFile);
         saveFile.setOnClickListener(this);
+        Button sendData = (Button) findViewById(R.id.sendData);
+        sendData.setOnClickListener(this);
 
-        scanBtn = (Button)findViewById(R.id.scan_button);
-        contentTxt = (TextView)findViewById(R.id.vin);
+        Button scanBtn = (Button) findViewById(R.id.scan_button);
+        contentTxt = vinNum;
         scanBtn.setOnClickListener(this);
+
+        adapter=new ArrayAdapter<>(this,
+                android.R.layout.simple_list_item_1,
+                listItems);
+        setListAdapter(adapter);
 
         Button manualVinEntry = (Button) findViewById(R.id.manual_vin_button);
         manualVinEntry.setOnClickListener(this);
 
         boolean isConnected = isInternetAvailable();
+
+        sharedPrefs = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        savedVehicleInfo = getSharedPreferences("vehicleInfo", Context.MODE_PRIVATE);
+
+        if(sharedPrefs.getBoolean("first_time", true))
+        {
+            showInputDialog();
+            sharedPrefs.edit().putBoolean("first_time", false).apply();
+        }
 
         if(isConnected){
             //Pulling data for the vehicle models and years so we don't have to update the app every time a new model comes out
@@ -344,28 +396,67 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
                     public void onResult(JSONObject object) {
                         processJson(object);
                     }
-                }).execute("https://spreadsheets.google.com/tq?key=1YP4XIwWZ2ubY4rd4jLzBn6do3VQT582KsKwQcfKBWJ8");
+                }, getApplicationContext()).execute("https://spreadsheets.google.com/tq?key=1YP4XIwWZ2ubY4rd4jLzBn6do3VQT582KsKwQcfKBWJ8");
             } catch (Exception e) {
-
+                return;
             }
 
-        } else { //No internet = no way to pull stuff from the cloud. Default to a hardcoded list, which was current as of 5/27/2016
-            Toast toast = Toast.makeText(getApplicationContext(),
-                    "No internet detected, loading default data", Toast.LENGTH_LONG);
-            toast.show();
+        } else { //No internet = no way to pull stuff from the cloud. Default to list saved when last connected
+            Toast.makeText(getApplicationContext(),
+                    "No internet detected, loading default data", Toast.LENGTH_LONG).show();
 
-            String data = "{\"version\":\"0.6\",\"reqId\":\"0\",\"status\":\"ok\",\"sig\":\"1424404733\",\"table\":{\"cols\":[{\"id\":\"A\",\"label\":\"Models\",\"type\":\"string\"},{\"id\":\"B\",\"label\":\"Years\",\"type\":\"number\",\"pattern\":\"General\"}],\"rows\":[{\"c\":[{\"v\":\"C-Max\"},{\"v\":2005.0,\"f\":\"2005\"}]},{\"c\":[{\"v\":\"E-350\"},{\"v\":2006.0,\"f\":\"2006\"}]},{\"c\":[{\"v\":\"Ecosport\"},{\"v\":2007.0,\"f\":\"2007\"}]},{\"c\":[{\"v\":\"Edge\"},{\"v\":2008.0,\"f\":\"2008\"}]},{\"c\":[{\"v\":\"Escape\"},{\"v\":2009.0,\"f\":\"2009\"}]},{\"c\":[{\"v\":\"Expedition\"},{\"v\":2010.0,\"f\":\"2010\"}]},{\"c\":[{\"v\":\"Explorer\"},{\"v\":2011.0,\"f\":\"2011\"}]},{\"c\":[{\"v\":\"F-150\"},{\"v\":2012.0,\"f\":\"2012\"}]},{\"c\":[{\"v\":\"F-250\"},{\"v\":2013.0,\"f\":\"2013\"}]},{\"c\":[{\"v\":\"Falcon\"},{\"v\":2014.0,\"f\":\"2014\"}]},{\"c\":[{\"v\":\"Fiesta\"},{\"v\":2015.0,\"f\":\"2015\"}]},{\"c\":[{\"v\":\"Figo\"},{\"v\":2016.0,\"f\":\"2016\"}]},{\"c\":[{\"v\":\"Five Hundred\"},{\"v\":2017.0,\"f\":\"2017\"}]},{\"c\":[{\"v\":\"Flex\"},{\"v\":null}]},{\"c\":[{\"v\":\"Focus (automatic transmission)\"},{\"v\":null}]},{\"c\":[{\"v\":\"Focus (manual transmission)\"},{\"v\":null}]},{\"c\":[{\"v\":\"Focus Classic\"},{\"v\":null}]},{\"c\":[{\"v\":\"Focus Electric\"},{\"v\":null}]},{\"c\":[{\"v\":\"Freestar\"},{\"v\":null}]},{\"c\":[{\"v\":\"Freestyle\"},{\"v\":null}]},{\"c\":[{\"v\":\"Fusion\"},{\"v\":null}]},{\"c\":[{\"v\":\"Kuga\"},{\"v\":null}]},{\"c\":[{\"v\":\"Mariner\"},{\"v\":null}]},{\"c\":[{\"v\":\"MKS\"},{\"v\":null}]},{\"c\":[{\"v\":\"MKX\"},{\"v\":null}]},{\"c\":[{\"v\":\"MKZ\"},{\"v\":null}]},{\"c\":[{\"v\":\"Mondeo\"},{\"v\":null}]},{\"c\":[{\"v\":\"Mustang\"},{\"v\":null}]},{\"c\":[{\"v\":\"Navigator\"},{\"v\":null}]},{\"c\":[{\"v\":\"Navigator\"},{\"v\":null}]},{\"c\":[{\"v\":\"Ranger\"},{\"v\":null}]},{\"c\":[{\"v\":\"Super Duty\"},{\"v\":null}]},{\"c\":[{\"v\":\"Taurus\"},{\"v\":null}]},{\"c\":[{\"v\":\"Territory\"},{\"v\":null}]},{\"c\":[{\"v\":\"Transit\"},{\"v\":null}]},{\"c\":[{\"v\":\"Transit Connect\"},{\"v\":null}]}]}}";
-            int start = data.indexOf("{", data.indexOf("{") + 1);
-            int end = data.lastIndexOf("}");
-            String jsonResponse = data.substring(start, end);
+            if(!savedInstanceState.containsKey("yearsAndModels"))
+            {
+                //This is to protect us in case the user isn't connected to the internet the first time
+                //they use the app since it's not able to pull down the model and years from the net and
+                //save them to the shared prefs (The string resource is up-to-date as of 8/15/2016)
+                savedVehicleInfo.edit().putString("yearAndModels", getResources().getString(R.string.defaultModelsAndYears)).apply();
+            }
+            String data = savedVehicleInfo.getString("yearsAndModels", null);
+            if(data != null)
+            {
+                int start = data.indexOf("{", data.indexOf("{") + 1);
+                int end = data.lastIndexOf("}");
+                String jsonResponse = data.substring(start, end);
 
-            try{
-                JSONObject cachedInfo = new JSONObject(jsonResponse);
-                processJson(cachedInfo);
-            } catch (JSONException e){
-                e.printStackTrace();
+                try{
+                    JSONObject cachedInfo = new JSONObject(jsonResponse);
+                    processJson(cachedInfo);
+                } catch (JSONException e){
+                    e.printStackTrace();
+                }
             }
         }
+    }
+
+    protected void showInputDialog() {
+
+        // get prompts.xml view
+        LayoutInflater layoutInflater = LayoutInflater.from(this);
+        View promptView = layoutInflater.inflate(R.layout.input_dialog, null);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setView(promptView);
+
+        final EditText user_name = (EditText) promptView.findViewById(R.id.name);
+        final EditText user_email = (EditText) promptView.findViewById(R.id.email);
+        // setup a dialog window
+        alertDialogBuilder.setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        sharedPrefs.edit().putString("UserEmail", user_email.getText().toString()).apply();
+                        sharedPrefs.edit().putString("UserName", user_name.getText().toString()).apply();
+                    }
+                })
+                .setNegativeButton("Cancel",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+        // create an alert dialog
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.show();
     }
 
     //Checks to see if the app can reach the internet...as long as google.com is working
@@ -377,11 +468,7 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
             NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
 
             //if (ipAddr.equals("") && activeNetworkInfo == null && !activeNetworkInfo.isConnected()) {
-            if (activeNetworkInfo == null && !activeNetworkInfo.isConnected()) {
-                return false;
-            } else {
-                return true;
-            }
+            return !(activeNetworkInfo == null && !activeNetworkInfo.isConnected());
 
         } catch (Exception e) {
             return false;
@@ -449,11 +536,15 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
                         deviceId = mVehicleManager.getVehicleInterfaceDeviceId();
                         runOnUiThread(new Runnable() {
                             public void run() {
-                                mVIVersion.setText("VI Version: " + version);
-                                mDeviceID.setText("VI Device ID: " + deviceId);
+                                if(version != null)
+                                    mVIVersion.setText("VI Version: " + version);
+                                else
+                                    mVIVersion.setText("VI Version: No VI Connected");
 
-                                //vinNum.setText("VIN: Manual Entry");
-                                //vinInput.setVisibility(View.VISIBLE);
+                                if(deviceId != null)
+                                    mDeviceID.setText("VI Device ID: " + deviceId);
+                                else
+                                    mDeviceID.setText("VI Device ID: No VI Connected");
 
                                 //TODO: Automatically pull VIN from the vehicle and only display the manual entry if it fails to pull
 
@@ -506,6 +597,9 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
     @Override
     public void onClick(View v) {
         // default method for handling onClick Events...
+        TextView accelSelection, brakeSelection, engineSpeedSelection, fuelConsumedSelection, fuelLevelSelection, latSelection, longSelection,
+                odometerSelection, steerAngleSelection, torqueSelection, gearSelection, speedSelection, headLampSelection, highbeamSelection, ignitionSelection,
+                parkingBrakeSelection, buttonSelection, doorSelection, wiperSelection;
 
         //TODO: I'm sure there is a better way to do this...
         Button yesAccel = (Button) findViewById(R.id.yesAccel);
@@ -565,7 +659,6 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
         Button resetDoor = (Button) findViewById(R.id.resetDoor);
         Button resetSpeed = (Button) findViewById(R.id.resetVehicleSpeed);
         Button resetWipers = (Button) findViewById(R.id.resetWipers);
-        //Button switchView = (Button) findViewById(R.id.switchView);
 
         accelSelection = (TextView) findViewById(R.id.selectedAccel);
         brakeSelection = (TextView) findViewById(R.id.selectedBrake);
@@ -606,23 +699,26 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
         buttonIssue = (EditText) findViewById(R.id.textButton);
         doorIssue = (EditText) findViewById(R.id.textDoor);
         wiperIssue = (EditText) findViewById(R.id.textWipers);
-
+        TextView vinScanShow = (TextView) findViewById(R.id.vin);
         userVin = (EditText) findViewById(R.id.manualVIN);
-
-        EditText emailAddress = (EditText) findViewById(R.id.email);
-        EditText name = (EditText) findViewById(R.id.name);
 
         switch (v.getId()) {
 
             case R.id.scan_button:
-                userVin.setVisibility(View.GONE);
                 IntentIntegrator scanIntegrator = new IntentIntegrator(this);
                 scanIntegrator.initiateScan();
+                vinScanShow.setVisibility(View.VISIBLE);
+                userVin.setVisibility(View.GONE);
+                mModelYearSpin.setVisibility(View.GONE);
+                mModelSpin.setVisibility(View.GONE);
+                mDecodedVehicleInfo.setVisibility(View.VISIBLE);
                 break;
             case R.id.manual_vin_button:
-                userVin.setVisibility(View.VISIBLE);
-                TextView vinScanShow = (TextView) findViewById(R.id.vin);
                 vinScanShow.setVisibility(View.GONE);
+                userVin.setVisibility(View.VISIBLE);
+                mModelYearSpin.setVisibility(View.VISIBLE);
+                mModelSpin.setVisibility(View.VISIBLE);
+                mDecodedVehicleInfo.setVisibility(View.GONE);
                 scanned = 0;
                 break;
             case R.id.yesAccel: //User selected the yes button
@@ -1233,105 +1329,40 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
                 signalNames[18] = "Wipers";
                 break;
 
-            case R.id.saveFile: //Not a save anymore, but posts to a Google doc
-
-                issueResponse[0] = accelIssue.getText().toString();
-                issueResponse[1] = brakeIssue.getText().toString();
-                issueResponse[2] = engineSpeedIssue.getText().toString();
-                issueResponse[3] = fuelConsumedIssue.getText().toString();
-                issueResponse[4] = fuelLevelIssue.getText().toString();
-                issueResponse[5] = headLampIssue.getText().toString();
-                issueResponse[6] = highbeamIssue.getText().toString();
-                issueResponse[7] = ignitionIssue.getText().toString();
-                issueResponse[8] = latIssue.getText().toString();
-                issueResponse[9] = longIssue.getText().toString();
-                issueResponse[10] = odometerIssue.getText().toString();
-                issueResponse[11] = parkingBrakeIssue.getText().toString();
-                issueResponse[12] = steerAngleIssue.getText().toString();
-                issueResponse[13] = torqueIssue.getText().toString();
-                issueResponse[14] = gearIssue.getText().toString();
-                issueResponse[15] = buttonIssue.getText().toString();
-                issueResponse[16] = doorIssue.getText().toString();
-                issueResponse[17] = speedIssue.getText().toString();
-                issueResponse[18] = wiperIssue.getText().toString();
-
-                if(scanned == 0)
-                    VIN = vinInput.getText().toString();
-                else
-                    VIN = vinNum.getText().toString().substring(5);
-
-                if(modelYearSelected != null) //Making sure we dont get any null responses here
-                    postArray[0] = modelYearSelected;
-                else
-                    postArray[0] = "No year selected";
-
-                if(modelSelected != null)
-                    postArray[1] = modelSelected;
-                else
-                    postArray[1] = "No model selected";
-
-                if(version != null)
-                    postArray[2] = version;
-                else
-                    postArray[2] = "No VI connected";
-
-                if(deviceId != null)
-                    postArray[3] = deviceId;
-                else
-                    postArray[3] = "No VI connected";
-
-                if(VIN.equals(""))
-                    postArray[4] = "No VIN entered";
-                else
-                    postArray[4] = VIN;
-
-                for(int i=0; i<=signalNames.length-1; i++)
-                {
-                    //jsonFormat[i] = "{\"name\":\"" + signalNames[i] + "\",\"value\":\"" + signalResponse[i] + "\",\"issue\":\"" + issueResponse[i] + "\"}\n"; //(For email)
-
-                    //Creating the HTML POST statement
-                    if(signalNames[i] != null)
-                    {
-                        if(issueResponse[i].equals(""))
-                            postArray[i+5] = signalResponse[i];
-                        else
-                            postArray[i+5] = signalResponse[i] + ": " + issueResponse[i];
-                    }
-                    else
-                        postArray[i+5] = "Signal not tested";
-                }
-
-                CheckBox nameAndEmail = (CheckBox) findViewById(R.id.nameAndEmail);
-
-                if(nameAndEmail.isChecked()) {
-                    postArray[24] = name.getText().toString();
-                    postArray[25] = emailAddress.getText().toString();
-                }
-                else{
-                    postArray[24] = "No Name Entered";
-                    postArray[25] = "No Email Entered";
-                }
+            case R.id.sendData: //Posts data to a Google doc
+                prepareData();
 
                 Context mContext = getApplicationContext();
-
                 PostToGoogleFormTask postToGoogleFormTask = new PostToGoogleFormTask();
                 postToGoogleFormTask.myContext=mContext;
                 postToGoogleFormTask.execute(postArray);
 
-                //Sends email instead of posting to google sheets
-                /*StringBuilder strBuilder = new StringBuilder();
-                for (int i = 0; i < jsonFormat.length; i++) {
-                    strBuilder.append(jsonFormat[i]);
-                }
-                String jsonOutput = strBuilder.toString();*/
+                break;
 
-                /*Intent sendIntent = new Intent();
-                sendIntent.setAction(Intent.ACTION_SEND);
-                sendIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"user@server.com"});
-                sendIntent.putExtra(Intent.EXTRA_SUBJECT, "Validation: " + modelYearSelected + " " + modelSelected);
-                sendIntent.putExtra(Intent.EXTRA_TEXT, "Vehicle: " + modelYearSelected + " " + modelSelected + "\nVIN: " + VIN + "\nVI Version: " + version + "\nVI Device ID: " + deviceId + "\n\n" + jsonOutput);
-                sendIntent.setType("text/plain");
-                startActivity(sendIntent);*/
+            case R.id.saveFile: //Saves file locally
+                prepareData();
+                try {
+                    //Putting the folder in the sdcard directory
+                    File root = new File(Environment.getExternalStorageDirectory(), "vi-validation");
+                    if (!root.exists()) {
+                        root.mkdirs();
+                    }
+                    SimpleDateFormat s = new SimpleDateFormat("MM-dd-yyyy-hh-mm-ss", Locale.US);
+                    String timestamp = s.format(new Date());
+                    //Filename is: ModelYear-Model-day-time (2016-Fusion-01-23-2016-12-56-05)
+                    String sFileName = postArray[0] + "-" + postArray[1] + "-" + timestamp + ".json";
+                    String sBody = new String();
+                    for(String value : postArray){sBody += value + "\n";}
+                    File gpxfile = new File(root, sFileName);
+                    FileWriter writer = new FileWriter(gpxfile);
+                    writer.append(sBody);
+                    writer.flush();
+                    writer.close();
+                    Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_SHORT).show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
 
                 break;
 
@@ -1353,47 +1384,130 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
         });
     }
 
-    //Getting data back from ZXing barcode scanner
-    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        if (scanningResult != null) {
-            String scanContent = scanningResult.getContents();
-            //String scanFormat = scanningResult.getFormatName();//Used to get format if needed down the line
-            contentTxt.setText("VIN: " + scanContent); //Shows recieved VIN
-            TextView scanVin = (TextView) findViewById(R.id.vin);
-            scanVin.setVisibility(View.VISIBLE);
-            scanned = 1;
+    private void prepareData()
+    {
+        issueResponse[0] = accelIssue.getText().toString();
+        issueResponse[1] = brakeIssue.getText().toString();
+        issueResponse[2] = engineSpeedIssue.getText().toString();
+        issueResponse[3] = fuelConsumedIssue.getText().toString();
+        issueResponse[4] = fuelLevelIssue.getText().toString();
+        issueResponse[5] = headLampIssue.getText().toString();
+        issueResponse[6] = highbeamIssue.getText().toString();
+        issueResponse[7] = ignitionIssue.getText().toString();
+        issueResponse[8] = latIssue.getText().toString();
+        issueResponse[9] = longIssue.getText().toString();
+        issueResponse[10] = odometerIssue.getText().toString();
+        issueResponse[11] = parkingBrakeIssue.getText().toString();
+        issueResponse[12] = steerAngleIssue.getText().toString();
+        issueResponse[13] = torqueIssue.getText().toString();
+        issueResponse[14] = gearIssue.getText().toString();
+        issueResponse[15] = buttonIssue.getText().toString();
+        issueResponse[16] = doorIssue.getText().toString();
+        issueResponse[17] = speedIssue.getText().toString();
+        issueResponse[18] = wiperIssue.getText().toString();
+
+        if(scanned == 0) {
+            VIN = vinInput.getText().toString();
+            if(modelYearSelected != null)
+                postArray[0] = modelYearSelected;
+            else
+                postArray[0] = "No year selected";
+
+            if(modelSelected != null)
+                postArray[1] = modelSelected;
+            else
+                postArray[1] = "No model selected";
         }
-        else{ //Nothing recieved from scanner
-                Toast toast = Toast.makeText(getApplicationContext(),
-                        "No scan data received!", Toast.LENGTH_SHORT);
-                toast.show();
+        else
+        {
+            VIN = vinNum.getText().toString().substring(5);
+            if(decodedModelYear != null)
+                postArray[0] = decodedModelYear;
+            else
+                postArray[0] = "No year selected";
+
+            if(decodedModel != null)
+                postArray[1] = decodedModel;
+            else
+                postArray[1] = "No model selected";
+        }
+
+        if(version != null)
+            postArray[2] = version;
+        else
+            postArray[2] = "No VI connected";
+
+        if(deviceId != null)
+            postArray[3] = deviceId;
+        else
+            postArray[3] = "No VI connected";
+
+        if(VIN.equals(""))
+            postArray[4] = "No VIN entered";
+        else
+            postArray[4] = VIN;
+
+        for(int i=0; i<=signalNames.length-1; i++)
+        {
+            //Creating the HTML POST statement
+            if(signalNames[i] != null)
+            {
+                if(issueResponse[i].equals(""))
+                    postArray[i+5] = signalResponse[i];
+                else
+                    postArray[i+5] = signalResponse[i] + ": " + issueResponse[i];
             }
+            else
+                postArray[i+5] = "Signal not tested";
+        }
+
+        if(sharedPrefs.getString("UserName", "None") != "None") {
+            postArray[24] = sharedPrefs.getString("UserName", "None");
+            postArray[25] = sharedPrefs.getString("UserEmail", "None");
+        }
+        else{
+            postArray[24] = "No Name Entered";
+            postArray[25] = "No Email Entered";
+        }
+
+        Set copyM = receivedMessages;
+        copyM.removeAll(allowedMessages);
+
+        if(!copyM.isEmpty()) {
+            postArray[26] = copyM.toString();
+        }
+        else
+            postArray[26] = "No extra signals detected";
     }
 
-    //Requesting PII
-    public void onCheckboxClicked(View view) {
-        // Is the view now checked?
-        boolean checked = ((CheckBox) view).isChecked();
-        TextView name = (TextView) findViewById(R.id.name);
-        TextView emailAddress = (TextView) findViewById(R.id.email);
+    //Getting data back from ZXing barcode scanner
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        System.out.println(requestCode);
+        if(requestCode != 0) {
+            IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+            if (scanningResult != null) {
+                String scanContent = scanningResult.getContents();
+                if(scanContent != null)
+                {
+                    contentTxt.setText("VIN: " + scanContent); //Shows recieved VIN
+                    TextView scanVin = (TextView) findViewById(R.id.vin);
+                    scanVin.setVisibility(View.VISIBLE);
+                    String nhtsaURL = "https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/" + scanContent + "?format=xml";
 
-        // Check which checkbox was clicked
-        switch(view.getId()) {
-            case R.id.nameAndEmail:
-                if (checked)
-                {
-                    name.setVisibility(view.VISIBLE);
-                    emailAddress.setVisibility(view.VISIBLE);
+                    decodeVIN vinInfo = new decodeVIN(nhtsaURL);
+                    vinInfo.fetchXML();
+                    while(vinInfo.parsingComplete);
+                    decodedModel = vinInfo.getModel();
+                    decodedModelYear = vinInfo.getModelYear();
+                    mDecodedVehicleInfo.setText("Vehicle: " + decodedModelYear + " " + decodedModel);
+                    scanned = 1;
+                } else {
+                    Toast.makeText(getApplicationContext(), "No VIN scanned", Toast.LENGTH_SHORT).show();
                 }
-                else
-                {
-                    name.setVisibility(view.GONE);
-                    emailAddress.setVisibility(view.GONE);
-                    name.setText(null);
-                    emailAddress.setText(null);
-                }
-                break;
+                //String scanFormat = scanningResult.getFormatName();//Used to get format if needed down the line
+            } else { //Nothing received from scanner
+                Toast.makeText(getApplicationContext(), "No scan data received!", Toast.LENGTH_SHORT).show();
+            }
         }
     }
 
@@ -1425,6 +1539,8 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
             mVehicleManager.removeListener(VehicleButtonEvent.class, mVehicleButtonListener);
             mVehicleManager.removeListener(VehicleDoorStatus.class, mDoorListener);
             mVehicleManager.removeListener(WindshieldWiperStatus.class, mWiperListener);
+            mVehicleManager.removeListener(SimpleVehicleMessage.class, mListener);
+            mVehicleManager.removeListener(EventedSimpleVehicleMessage.class, mListener);
             unbindService(mConnection);
             mVehicleManager = null;
         }
@@ -1685,6 +1801,109 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
         }
     };
 
+    private boolean extraSignalTrip = false;
+    Map<String, String> values = new HashMap<String, String>();
+
+    VehicleMessage.Listener mListener = new VehicleMessage.Listener(){
+        @Override
+        public void receive(final VehicleMessage message) {
+            //Adding all the received message names into an array.
+            //Because it's a set, it will only add unique values.
+            receivedMessages.add(message.asSimpleMessage().getName());
+            //Making copies so we don't lose the originals when we removeAll()
+            final Set copyOfReceivedMessages = receivedMessages;
+            final Set copyOfAllowedMessages = allowedMessages;
+            //If there are any left over after we remove the allowed (aka, there are extra messages),
+            //it returns false
+            if(!copyOfReceivedMessages.removeAll(copyOfAllowedMessages)) {
+                runOnUiThread(new Runnable() {
+                    public void run()
+                    {
+                        if(!extraSignalTrip)
+                        {
+                            //Effectively un-hide the extra signals panel
+                            myLayout.setPanelHeight(130);
+                        }
+                        extraSignalTrip = true;
+
+                        if(!allowedMessages.contains(message.asSimpleMessage().getName()))
+                        {
+                            if(message instanceof EventedSimpleVehicleMessage) {
+                                //Create a string from the message
+                                String valueToSet = ((EventedSimpleVehicleMessage) message).getName() + " " +
+                                        ((EventedSimpleVehicleMessage) message).getValue() +
+                                        ": " + ((EventedSimpleVehicleMessage) message).getEvent();
+
+                                //If the values set doesn't contain the message already, add it
+                                if(!values.containsKey(message.asSimpleMessage().getName())) {
+                                    values.put(((EventedSimpleVehicleMessage) message).getName(),
+                                            ((EventedSimpleVehicleMessage) message).getValue() +
+                                                    ": " + ((EventedSimpleVehicleMessage) message).getEvent());
+
+                                    listItems.add(valueToSet);
+
+                                    adapter.notifyDataSetChanged();
+                                //If the message is already added, we need to update the value
+                                }else if(values.containsKey(message.asSimpleMessage().getName())) {
+                                    String regex = message.asSimpleMessage().getName() + ".*";
+                                    //Searching for the string in the set. Regex is needed since the
+                                    //message and the value are in the same string.
+                                    ArrayList<String> matches = getMatchingStrings(listItems, regex);
+                                    //Get index location of the message
+                                    int index = listItems.indexOf(matches.get(0));
+                                    //Update the message
+                                    listItems.set(index, valueToSet);
+
+                                    adapter.notifyDataSetChanged();
+                                }
+
+
+                            }
+                            else {
+                                //Same as above, but for a simple messsage
+                                String valueToSet = (((SimpleVehicleMessage) message).getName() + ": " +
+                                        ((SimpleVehicleMessage) message).getValue());
+
+                                if(!values.containsKey(message.asSimpleMessage().getName())) {
+                                    values.put(((SimpleVehicleMessage) message).getName(),
+                                            ((SimpleVehicleMessage) message).getValue().toString());
+
+                                    listItems.add(valueToSet);
+
+                                    adapter.notifyDataSetChanged();
+                                }else if(values.containsKey(message.asSimpleMessage().getName())) {
+                                    String regex = message.asSimpleMessage().getName() + ".*";
+                                    ArrayList<String> matches = getMatchingStrings(listItems, regex);
+                                    int index = listItems.indexOf(matches.get(0));
+                                    listItems.set(index, valueToSet);
+
+                                    adapter.notifyDataSetChanged();
+                                }
+                            }
+                        }
+
+                    }
+                });
+            }
+        }
+    };
+
+    //Regex search to look for matching messages when adding to the illegal messages list
+    ArrayList<String> getMatchingStrings(ArrayList<String> list, String regex) {
+
+        ArrayList<String> matches = new ArrayList<>();
+
+        Pattern p = Pattern.compile(regex);
+
+        for (String s:list) {
+            if (p.matcher(s).matches()) {
+                matches.add(s);
+            }
+        }
+
+        return matches;
+    }
+
     private ServiceConnection mConnection = new ServiceConnection() {
         // Called when the connection with the VehicleManager service is
         // established, i.e. bound.
@@ -1694,8 +1913,7 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
             // When the VehicleManager starts up, we store a reference to it
             // here in "mVehicleManager" so we can call functions on it
             // elsewhere in our code.
-            mVehicleManager = ((VehicleManager.VehicleBinder) service)
-                    .getService();
+            mVehicleManager = ((VehicleManager.VehicleBinder) service).getService();
 
             updateViInfo();
 
@@ -1704,25 +1922,46 @@ public class StarterActivity extends Activity implements OnClickListener, OnItem
             // we request that the VehicleManager call its receive() method
             // whenever the EngineSpeed changes
             mVehicleManager.addListener(EngineSpeed.class, mSpeedListener);
+            allowedMessages.add("engine_speed");
             mVehicleManager.addListener(AcceleratorPedalPosition.class, mAcceleratorPedalListener);
+            allowedMessages.add("accelerator_pedal_position");
             mVehicleManager.addListener(BrakePedalStatus.class, mBrakePedalListener);
+            allowedMessages.add("brake_pedal_status");
             mVehicleManager.addListener(FuelConsumed.class, mFuelConsumedListener);
+            allowedMessages.add("fuel_consumed_since_restart");
             mVehicleManager.addListener(FuelLevel.class, mFuelLevelListener);
+            allowedMessages.add("fuel_level");
             mVehicleManager.addListener(Latitude.class, mLatitudeListener);
+            allowedMessages.add("latitude");
             mVehicleManager.addListener(Longitude.class, mLongitudeListener);
+            allowedMessages.add("longitude");
             mVehicleManager.addListener(Odometer.class, mOdometerListener);
+            allowedMessages.add("odometer");
             mVehicleManager.addListener(SteeringWheelAngle.class, mSteeringWheelAngleListener);
+            allowedMessages.add("steering_wheel_angle");
             mVehicleManager.addListener(TorqueAtTransmission.class, mTorqueAtTransmissionListener);
+            allowedMessages.add("torque_at_transmission");
             mVehicleManager.addListener(TransmissionGearPosition.class, mGearListener);
+            allowedMessages.add("transmission_gear_position");
             mVehicleManager.addListener(VehicleSpeed.class, mVehicleSpeedListener);
+            allowedMessages.add("vehicle_speed");
             mVehicleManager.addListener(HeadlampStatus.class, mHeadlampListener);
+            allowedMessages.add("headlamp_status");
             mVehicleManager.addListener(HighBeamStatus.class, mHighbeamListener);
+            allowedMessages.add("high_beam_status");
             mVehicleManager.addListener(IgnitionStatus.class, mIgnitionListener);
+            allowedMessages.add("ignition_status");
             mVehicleManager.addListener(ParkingBrakeStatus.class, mParkingBrakeListener);
+            allowedMessages.add("parking_brake_status");
             mVehicleManager.addListener(VehicleButtonEvent.class, mVehicleButtonListener);
+            allowedMessages.add("button_event");
             mVehicleManager.addListener(VehicleDoorStatus.class, mDoorListener);
+            allowedMessages.add("door_status");
             mVehicleManager.addListener(WindshieldWiperStatus.class, mWiperListener);
+            allowedMessages.add("windshield_wiper_status");
 
+            mVehicleManager.addListener(SimpleVehicleMessage.class, mListener);
+            mVehicleManager.addListener(EventedSimpleVehicleMessage.class, mListener);
         }
 
         // Called when the connection with the service disconnects unexpectedly
